@@ -1,0 +1,62 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+.pnpm-debug.log
+
+# Env files
+.env
+.env.*.local
+.env.local
+
+# Build outputs
+dist/
+build/
+.cache/
+.tmp/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+logs/*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Misc
+uploads/
+*.seed
+
+# Optional: local database files
+*.sqlite
+
+# JetBrains
+out/
+
+# Mac
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Ignore compiled binary/executables
+dist/
+build/
+
+# Ignore dotenv vault (if used)
+.env.vault
