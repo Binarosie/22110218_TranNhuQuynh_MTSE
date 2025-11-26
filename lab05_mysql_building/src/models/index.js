@@ -10,10 +10,6 @@ const Building = require('./Building');
 const Block = require('./Block');
 const Floor = require('./Floor');
 const Apartment = require('./Apartment');
-const HouseholdMember = require('./HouseholdMember');
-const Billing = require('./Billing');
-const Payment = require('./Payment');
-const Visitor = require('./Visitor');
 const Facility = require('./Facility');
 const FacilityBooking = require('./FacilityBooking');
 const Announcement = require('./Announcement');
@@ -41,27 +37,23 @@ Floor.belongsTo(Block, { foreignKey: 'blockId', as: 'block' });
 Floor.hasMany(Apartment, { foreignKey: 'floorId', as: 'apartments' });
 Apartment.belongsTo(Floor, { foreignKey: 'floorId', as: 'floor' });
 
-Apartment.hasMany(HouseholdMember, { foreignKey: 'apartmentId', as: 'members' });
-HouseholdMember.belongsTo(Apartment, { foreignKey: 'apartmentId', as: 'apartment' });
+// Tenant-Apartment relationship
+Apartment.belongsTo(User, { foreignKey: 'tenantId', as: 'tenant' });
+User.hasMany(Apartment, { foreignKey: 'tenantId', as: 'rentedApartments' });
 
-Apartment.hasMany(Billing, { foreignKey: 'apartmentId', as: 'billings' });
-Billing.belongsTo(Apartment, { foreignKey: 'apartmentId', as: 'apartment' });
-
-Billing.hasMany(Payment, { foreignKey: 'billingId', as: 'payments' });
-Payment.belongsTo(Billing, { foreignKey: 'billingId', as: 'billing' });
-
-Apartment.hasMany(Visitor, { foreignKey: 'apartmentId', as: 'visitors' });
-Visitor.belongsTo(Apartment, { foreignKey: 'apartmentId', as: 'apartment' });
-
+// Facility booking relationships
 Facility.hasMany(FacilityBooking, { foreignKey: 'facilityId', as: 'bookings' });
 FacilityBooking.belongsTo(Facility, { foreignKey: 'facilityId', as: 'facility' });
 
 Apartment.hasMany(FacilityBooking, { foreignKey: 'apartmentId', as: 'facilityBookings' });
 FacilityBooking.belongsTo(Apartment, { foreignKey: 'apartmentId', as: 'apartment' });
 
+User.hasMany(FacilityBooking, { foreignKey: 'userId', as: 'facilityBookings' });
+FacilityBooking.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
 module.exports = {
   sequelize,
   User, Role, Position,
-  Building, Block, Floor, Apartment, HouseholdMember,
-  Billing, Payment, Visitor, Facility, FacilityBooking, Announcement
+  Building, Block, Floor, Apartment,
+  Facility, FacilityBooking, Announcement
 };

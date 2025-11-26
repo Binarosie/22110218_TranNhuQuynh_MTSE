@@ -20,11 +20,30 @@ const Apartment = sequelize.define('Apartment', {
     },
     area: {
         type: DataTypes.FLOAT,
-        allowNull: true
+        allowNull: true,
+        comment: 'Area in square meters'
     },
     status: {
         type: DataTypes.ENUM('vacant', 'occupied', 'maintenance'),
         defaultValue: 'vacant'
+    },
+    tenantId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        comment: 'ID of the user who is renting this apartment'
+    },
+    monthlyRent: {
+        type: DataTypes.DECIMAL(12, 2),
+        allowNull: true,
+        comment: 'Monthly rent amount in VND'
+    },
+    leaseStartDate: {
+        type: DataTypes.DATE,
+        allowNull: true
+    },
+    leaseEndDate: {
+        type: DataTypes.DATE,
+        allowNull: true
     }
 });
 
