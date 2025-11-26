@@ -1,5 +1,5 @@
 const { sequelize } = require('../config/database');
-const { User, Role, Position } = require('../models');
+const { User, Role, Position, Building, Block, Floor, Apartment, Facility } = require('../models');
 
 const seedDatabase = async () => {
     try {
@@ -9,7 +9,7 @@ const seedDatabase = async () => {
         await sequelize.sync({ force: true });
         console.log('Database synced successfully');
 
-        // Create Roles
+        // Create Roles for apartment rental system
         const roles = await Role.bulkCreate([
             {
                 name: 'Admin',
@@ -17,170 +17,233 @@ const seedDatabase = async () => {
                 isActive: true
             },
             {
-                name: 'Manager',
-                description: 'User management and reporting access',
-                isActive: true
-            },
-            {
-                name: 'Employee',
-                description: 'Basic user access',
+                name: 'Manager', 
+                description: 'Building and facility management access',
                 isActive: true
             },
             {
                 name: 'User',
-                description: 'Standard user access',
+                description: 'Tenant access - can book facility repairs',
                 isActive: true
             }
         ]);
         console.log('Roles created successfully');
 
-        // Create Positions
+        // Create Positions for apartment rental system
         const positions = await Position.bulkCreate([
             {
-                title: 'Software Engineer',
-                description: 'Develops and maintains software applications',
-                department: 'Engineering',
-                salary: 75000.00,
-                isActive: true
-            },
-            {
-                title: 'Senior Software Engineer',
-                description: 'Senior developer with leadership responsibilities',
-                department: 'Engineering',
-                salary: 95000.00,
-                isActive: true
-            },
-            {
-                title: 'Product Manager',
-                description: 'Manages product development and strategy',
-                department: 'Product',
+                title: 'System Administrator',
+                description: 'Manages entire building management system',
+                department: 'Administration',
                 salary: 85000.00,
                 isActive: true
             },
             {
-                title: 'UI/UX Designer',
-                description: 'Designs user interfaces and experiences',
-                department: 'Design',
+                title: 'Building Manager',
+                description: 'Manages building operations and tenant relations',
+                department: 'Building Management',
                 salary: 65000.00,
                 isActive: true
             },
             {
-                title: 'DevOps Engineer',
-                description: 'Manages deployment and infrastructure',
-                department: 'Engineering',
-                salary: 80000.00,
+                title: 'Facility Manager',
+                description: 'Manages facility maintenance and repair bookings',
+                department: 'Facility Management',
+                salary: 55000.00,
                 isActive: true
             },
             {
-                title: 'HR Manager',
-                description: 'Manages human resources and recruitment',
-                department: 'Human Resources',
-                salary: 70000.00,
+                title: 'Booking Manager',
+                description: 'Manages facility booking schedules and assignments',
+                department: 'Operations',
+                salary: 50000.00,
+                isActive: true
+            },
+            {
+                title: 'Landlord',
+                description: 'Property owner who rents out apartments',
+                department: 'Property Management',
+                salary: 0.00,
+                isActive: true
+            },
+            {
+                title: 'Tenant',
+                description: 'Apartment renter who can book facility services',
+                department: 'Residents',
+                salary: 0.00,
                 isActive: true
             }
         ]);
         console.log('Positions created successfully');
 
-        // Create Users
+        // Create Users for apartment rental system
         const users = await User.bulkCreate([
             {
                 firstName: 'Admin',
-                lastName: 'User',
-                email: 'admin@example.com',
+                lastName: 'System',
+                email: 'admin@building.com',
                 password: 'admin123',
-                phone: '+1234567890',
-                address: '123 Admin Street, Admin City, AC 12345',
-                dateOfBirth: '1990-01-01',
+                phone: '+84901000001',
+                address: '268 Lý Thường Kiệt, Quận 10, TP.HCM',
+                dateOfBirth: '1985-01-01',
                 roleId: roles[0].id, // Admin role
-                positionId: positions[1].id, // Senior Software Engineer
+                positionId: positions[0].id, // System Administrator
                 isActive: true
             },
             {
-                firstName: 'John',
-                lastName: 'Manager',
-                email: 'manager@example.com',
+                firstName: 'Nguyễn',
+                lastName: 'Văn Quản',
+                email: 'manager@building.com',
                 password: 'manager123',
-                phone: '+1234567891',
-                address: '456 Manager Ave, Manager City, MC 67890',
-                dateOfBirth: '1985-05-15',
+                phone: '+84901000002',
+                address: '268 Lý Thường Kiệt, Quận 10, TP.HCM',
+                dateOfBirth: '1980-05-15',
                 roleId: roles[1].id, // Manager role
-                positionId: positions[2].id, // Product Manager
+                positionId: positions[1].id, // Building Manager
                 isActive: true
             },
             {
-                firstName: 'Alice',
-                lastName: 'Smith',
-                email: 'alice@example.com',
-                password: 'alice123',
-                phone: '+1234567892',
-                address: '789 Employee St, Employee City, EC 54321',
-                dateOfBirth: '1992-08-20',
-                roleId: roles[2].id, // Employee role
-                positionId: positions[0].id, // Software Engineer
-                isActive: true
-            },
-            {
-                firstName: 'Bob',
-                lastName: 'Johnson',
-                email: 'bob@example.com',
-                password: 'bob123',
-                phone: '+1234567893',
-                address: '321 Designer Blvd, Design City, DC 98765',
-                dateOfBirth: '1988-12-10',
-                roleId: roles[2].id, // Employee role
-                positionId: positions[3].id, // UI/UX Designer
-                isActive: true
-            },
-            {
-                firstName: 'Charlie',
-                lastName: 'Brown',
-                email: 'charlie@example.com',
-                password: 'charlie123',
-                phone: '+1234567894',
-                address: '654 DevOps Lane, DevOps City, DOC 13579',
-                dateOfBirth: '1991-03-25',
-                roleId: roles[3].id, // User role
-                positionId: positions[4].id, // DevOps Engineer
-                isActive: true
-            },
-            {
-                firstName: 'Diana',
-                lastName: 'Wilson',
-                email: 'diana@example.com',
-                password: 'diana123',
-                phone: '+1234567895',
-                address: '987 HR Road, HR City, HRC 24680',
-                dateOfBirth: '1987-07-30',
+                firstName: 'Trần',
+                lastName: 'Thị Sửa',
+                email: 'facility@building.com',
+                password: 'facility123',
+                phone: '+84901000003',
+                address: '268 Lý Thường Kiệt, Quận 10, TP.HCM',
+                dateOfBirth: '1988-08-20',
                 roleId: roles[1].id, // Manager role
-                positionId: positions[5].id, // HR Manager
+                positionId: positions[2].id, // Facility Manager
                 isActive: true
             },
             {
-                firstName: 'Test',
-                lastName: 'User',
-                email: 'test@example.com',
-                password: 'test123',
-                phone: '+1234567896',
-                address: '555 Test Street, Test City, TC 11111',
-                dateOfBirth: '1995-11-11',
-                roleId: roles[3].id, // User role
-                positionId: null, // No position
-                isActive: false // Inactive user for testing
+                firstName: 'Lê',
+                lastName: 'Văn Dân',
+                email: 'tenant1@gmail.com',
+                password: 'tenant123',
+                phone: '+84901000004',
+                address: 'Căn 0101 - Block S.01',
+                dateOfBirth: '1990-12-10',
+                roleId: roles[2].id, // User role (tenant)
+                positionId: positions[5].id, // Tenant
+                isActive: true
+            },
+            {
+                firstName: 'Huỳnh',
+                lastName: 'Thành Duy',
+                email: 'student@gmail.com',
+                password: 'student123',
+                phone: '+84901000005',
+                address: 'Căn 0102 - Block S.01',
+                dateOfBirth: '1995-03-25',
+                roleId: roles[2].id, // User role (tenant)
+                positionId: positions[5].id, // Tenant
+                isActive: true
+            },
+            {
+                firstName: 'Phạm',
+                lastName: 'Thu Hà',
+                email: 'landlord1@gmail.com',
+                password: 'landlord123',
+                phone: '+84901000006',
+                address: 'Chủ sở hữu nhiều căn hộ',
+                dateOfBirth: '1975-07-30',
+                roleId: roles[1].id, // Manager role (can manage their properties)
+                positionId: positions[4].id, // Landlord
+                isActive: true
             }
-        ]);
+        ], { individualHooks: true });
         console.log('Users created successfully');
+
+
+        // --- Block / Building / Floor / Apartment / Household / Facility seeding ---
+        console.log('\nSeeding building and block data...');
+
+        // Create a top-level building complex (acts as container for blocks)
+        const complex = await Building.create({
+            name: 'Khu S Complex',
+            address: '268 Lý Thường Kiệt, Quận 10, TP.HCM',
+            description: 'Khu chung cư mẫu S - test data',
+            isActive: true
+        });
+
+        // Create 10 blocks under this complex: S.01 .. S.10
+        const blocks = [];
+        for (let i = 1; i <= 10; i++) {
+            const code = `S.${i.toString().padStart(2, '0')}`;
+            const b = await Block.create({ name: `Block ${code}`, buildingId: complex.id });
+            blocks.push(b);
+        }
+
+        // Create floors for the first block (sample)
+        const floors = [];
+        const firstBlock = blocks[0];
+        for (let f = 1; f <= 20; f++) {
+            const floor = await Floor.create({ number: f, blockId: firstBlock.id });
+            floors.push(floor);
+        }
+
+        // Create apartments for floors 1-3 (8 apartments per floor) as sample data
+        const apartments = [];
+        for (let floorIndex = 0; floorIndex < 3; floorIndex++) {
+            const floor = floors[floorIndex];
+            for (let aptNumber = 1; aptNumber <= 8; aptNumber++) {
+                const aptNumStr = `${(floorIndex + 1).toString().padStart(2, '0')}${aptNumber.toString().padStart(2, '0')}`;
+                
+                // Assign tenants to specific apartments
+                let tenantId = null;
+                let leaseStart = null;
+                let leaseEnd = null;
+                
+                if (aptNumStr === '0101') {
+                    tenantId = users.find(u => u.email === 'tenant1@gmail.com').id;
+                    leaseStart = new Date('2024-01-01');
+                    leaseEnd = new Date('2025-12-31');
+                } else if (aptNumStr === '0102') {
+                    tenantId = users.find(u => u.email === 'student@gmail.com').id;
+                    leaseStart = new Date('2024-06-01');
+                    leaseEnd = new Date('2025-05-31');
+                }
+                
+                const apt = await Apartment.create({ 
+                    number: aptNumStr, 
+                    floorId: floor.id, 
+                    area: 60 + floorIndex * 1.5, 
+                    status: tenantId ? 'occupied' : 'vacant',
+                    tenantId: tenantId,
+                    monthlyRent: 8000000 + floorIndex * 500000, // VND
+                    leaseStartDate: leaseStart,
+                    leaseEndDate: leaseEnd
+                });
+                apartments.push(apt);
+            }
+        }
+
+        // Create facilities for apartment maintenance and repair
+        const facilities = await Facility.bulkCreate([
+            { name: 'Điện nước', description: 'Sửa chữa hệ thống điện, nước trong căn hộ', quantity: 1 },
+            { name: 'Điều hòa', description: 'Bảo trì, sửa chữa điều hòa không khí', quantity: 1 },
+            { name: 'Thang máy', description: 'Bảo trì thang máy chung', quantity: 2 },
+            { name: 'Vệ sinh chung', description: 'Dọn dẹp khu vực chung', quantity: 1 },
+            { name: 'An ninh', description: 'Dịch vụ bảo vệ và giám sát', quantity: 1 }
+        ]);
 
         console.log('Database seeding completed successfully!');
         console.log('\nSeeded Data Summary:');
-        console.log(`- ${roles.length} roles created`);
+        console.log(`- ${roles.length} roles created (Admin, Manager, User)`);
         console.log(`- ${positions.length} positions created`);
         console.log(`- ${users.length} users created`);
+        console.log(`- 1 building complex created`);
+        console.log(`- ${blocks.length} blocks created`);
+        console.log(`- ${floors.length} floors created for first block`);
+        console.log(`- ${apartments.length} apartments created with tenant assignments`);
+        console.log(`- ${facilities.length} facilities created for maintenance`);
 
         console.log('\nTest Credentials:');
-        console.log('Admin: admin@example.com / admin123');
-        console.log('Manager: manager@example.com / manager123');
-        console.log('Employee: alice@example.com / alice123');
-        console.log('User: test@example.com / test123 (inactive)');
+        console.log('Admin: admin@building.com / admin123');
+        console.log('Manager: manager@building.com / manager123');
+        console.log('Facility Manager: facility@building.com / facility123');
+        console.log('Tenant 1: tenant1@gmail.com / tenant123');
+        console.log('Tenant 2: student@gmail.com / student123');
+        console.log('Landlord: landlord1@gmail.com / landlord123');
 
         process.exit(0);
     } catch (error) {

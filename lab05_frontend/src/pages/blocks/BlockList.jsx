@@ -22,10 +22,11 @@ const BlockList = () => {
     try {
       setLoading(true);
       const res = await api.get('/blocks', { params: { page: p, pageSize: 20 } });
-      const data = res.data?.data || { items: [], total: 0 };
-      if (p === 1) setBlocks(data.items || []);
-      else setBlocks(prev => [...prev, ...(data.items || [])]);
-      setHasMore((p * 20) < (data.total || 0));
+      console.log('API Response:', res.data); // Debug log
+      const responseData = res.data;
+      if (p === 1) setBlocks(responseData.data || []);
+      else setBlocks(prev => [...prev, ...(responseData.data || [])]);
+      setHasMore((p * (responseData.pageSize || 20)) < (responseData.total || 0));
       setPage(p);
     } catch (err) {
       console.error('Error fetching blocks', err);

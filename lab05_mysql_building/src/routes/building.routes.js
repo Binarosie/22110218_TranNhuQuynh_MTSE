@@ -1,10 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const { createBuilding, listBuildings } = require('../controllers/building.controller');
-const { authMiddleware } = require('../middleware/auth');
-const { permit } = require('../middleware/authorization');
+const { createBuilding, listBuildings, getBuildingById, updateBuilding, deleteBuilding } = require('../controllers/building.controller');
+const { authMiddleware, adminMiddleware, managerMiddleware } = require('../middleware/auth');
 
-router.get('/', authMiddleware, listBuildings);
-router.post('/', authMiddleware, permit('Admin','Manager'), createBuilding);
+// Public route for dropdown data
+router.get('/', listBuildings);
+
+// Protected routes
+router.use(authMiddleware);
+
+// Manager and Admin routes
+router.get('/:id', managerMiddleware, getBuildingById);
+
+// Admin only routes
+router.post('/', adminMiddleware, createBuilding);
+router.put('/:id', adminMiddleware, updateBuilding);
+router.delete('/:id', adminMiddleware, deleteBuilding);
 
 module.exports = router;
