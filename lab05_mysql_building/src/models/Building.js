@@ -25,7 +25,13 @@ const Building = sequelize.define('Building', {
 	isActive: {
 		type: DataTypes.BOOLEAN,
 		defaultValue: true
+	},
+	deletedAt: {
+		type: DataTypes.DATE,
+		allowNull: true
 	}
+}, {
+	paranoid: true
 });
 
 module.exports = Building;

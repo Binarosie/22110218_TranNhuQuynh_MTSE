@@ -49,12 +49,12 @@ const handleValidationErrors = (req, res, next) => {
     next();
 };
 
-// Public routes (for dropdown data)
-router.get('/roles', getRoles);
-router.get('/positions', getPositions);
-
 // Protected routes - require authentication
 router.use(authMiddleware);
+
+// Admin only routes for roles and positions
+router.get('/roles', adminMiddleware, getRoles);
+router.get('/positions', adminMiddleware, getPositions);
 
 // Manager and Admin routes
 router.get('/', managerMiddleware, getAllUsers);

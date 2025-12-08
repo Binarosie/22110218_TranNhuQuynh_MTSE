@@ -6,6 +6,9 @@ const { authMiddleware, adminMiddleware, managerMiddleware } = require('../middl
 // Public routes for authenticated users
 router.get('/stats', authMiddleware, floorController.getFloorStats);
 
+// Public route - list floors with vacant apartments
+router.get('/vacant', floorController.listFloorsWithVacantApartments);
+
 // CRUD operations with role-based access
 router.get('/', authMiddleware, floorController.listFloors);
 router.get('/:id', authMiddleware, floorController.getFloorById);

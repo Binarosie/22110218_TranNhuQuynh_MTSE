@@ -28,7 +28,13 @@ const Announcement = sequelize.define('Announcement', {
     expiresAt: {
         type: DataTypes.DATE,
         allowNull: true
+    },
+    deletedAt: {
+        type: DataTypes.DATE,
+        allowNull: true
     }
+}, {
+    paranoid: true
 });
 
 module.exports = Announcement;

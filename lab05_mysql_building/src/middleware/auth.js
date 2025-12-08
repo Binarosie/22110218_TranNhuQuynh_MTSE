@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { User, Role, Position } = require('../models');
+const { User, Role, Position, TokenBlacklist } = require('../models');
 
 const authMiddleware = async (req, res, next) => {
     try {
@@ -9,6 +9,18 @@ const authMiddleware = async (req, res, next) => {
             return res.status(401).json({
                 success: false,
                 message: 'Access denied. No token provided.'
+            });
+        }
+
+        // Check if token is blacklisted
+        const blacklistedToken = await TokenBlacklist.findOne({ 
+            where: { token } 
+        });
+
+        if (blacklistedToken) {
+            return res.status(401).json({
+                success: false,
+                message: 'Token has been revoked. Please login again.'
             });
         }
 
@@ -28,6 +40,7 @@ const authMiddleware = async (req, res, next) => {
         }
 
         req.user = user;
+        req.token = token;
         next();
     } catch (error) {
         console.error('Auth middleware error:', error);
@@ -64,10 +77,48 @@ const managerMiddleware = (req, res, next) => {
         });
     }
 
-    if (!req.user.role || !['Admin', 'Manager'].includes(req.user.role.name)) {
+    if (!req.user.role || !['Admin', 'Technician'].includes(req.user.role.name)) {
         return res.status(403).json({
             success: false,
-            message: 'Manager access required.'
+            message: 'Admin or Technician access required.'
+        });
+    }
+
+    next();
+};
+
+// Middleware for technician only
+const technicianMiddleware = (req, res, next) => {
+    if (!req.user) {
+        return res.status(401).json({
+            success: false,
+            message: 'Authentication required.'
+        });
+    }
+
+    if (!req.user.role || !['Admin', 'Technician'].includes(req.user.role.name)) {
+        return res.status(403).json({
+            success: false,
+            message: 'Technician access required.'
+        });
+    }
+
+    next();
+};
+
+// Middleware for user/tenant only
+const userMiddleware = (req, res, next) => {
+    if (!req.user) {
+        return res.status(401).json({
+            success: false,
+            message: 'Authentication required.'
+        });
+    }
+
+    if (!req.user.role || req.user.role.name !== 'User') {
+        return res.status(403).json({
+            success: false,
+            message: 'User access required.'
         });
     }
 
@@ -77,5 +128,7 @@ const managerMiddleware = (req, res, next) => {
 module.exports = {
     authMiddleware,
     adminMiddleware,
-    managerMiddleware
+    managerMiddleware,
+    technicianMiddleware,
+    userMiddleware
 };

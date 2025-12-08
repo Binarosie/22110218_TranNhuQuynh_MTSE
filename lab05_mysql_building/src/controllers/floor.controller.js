@@ -1,4 +1,4 @@
-const { Floor, Block, Building, Apartment } = require('../models');
+const { Floor, Block, Building, Apartment, User } = require('../models');
 const { Op } = require('sequelize');
 
 const listFloors = async (req, res) => {
@@ -274,11 +274,81 @@ const getFloorStats = async (req, res) => {
   }
 };
 
+const listFloorsWithVacantApartments = async (req, res) => {
+  try {
+    const { page = 1, pageSize = 20, blockId, buildingId } = req.query;
+    const offset = (page - 1) * pageSize;
+    const floorWhere = {};
+    
+    if (blockId) {
+      floorWhere.blockId = blockId;
+    }
+    
+    const blockInclude = {
+      model: Block,
+      as: 'block',
+      include: [{ model: Building, as: 'building' }]
+    };
+    
+    if (buildingId) {
+      blockInclude.where = { buildingId };
+      blockInclude.required = true;
+    }
+    
+    const result = await Floor.findAndCountAll({
+      where: floorWhere,
+      include: [
+        blockInclude,
+        {
+          model: Apartment,
+          as: 'apartments',
+          where: { status: 'vacant' },
+          required: false,
+          include: [
+            {
+              model: User,
+              as: 'tenant',
+              attributes: ['id', 'firstName', 'lastName', 'email']
+            }
+          ]
+        }
+      ],
+      limit: parseInt(pageSize),
+      offset: parseInt(offset),
+      order: [['number', 'ASC'], [{ model: Apartment, as: 'apartments' }, 'number', 'ASC']]
+    });
+    
+    // Filter floors that have at least one vacant apartment
+    const floorsWithVacantApartments = result.rows
+      .map(floor => {
+        const floorData = floor.toJSON();
+        floorData.vacantApartmentCount = floorData.apartments?.length || 0;
+        return floorData;
+      })
+      .filter(floor => floor.vacantApartmentCount > 0);
+    
+    res.json({
+      success: true,
+      message: 'Danh sách tầng có căn hộ trống',
+      data: floorsWithVacantApartments,
+      total: floorsWithVacantApartments.length,
+      page: parseInt(page),
+      pages: Math.ceil(floorsWithVacantApartments.length / pageSize)
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
 module.exports = {
   listFloors,
   createFloor,
   getFloorById,
   updateFloor,
   deleteFloor,
-  getFloorStats
+  getFloorStats,
+  listFloorsWithVacantApartments
 };

@@ -13,17 +13,17 @@ const seedDatabase = async () => {
         const roles = await Role.bulkCreate([
             {
                 name: 'Admin',
-                description: 'Full system access and user management',
+                description: 'Full system access - CRUD all, assign technicians to bookings',
                 isActive: true
             },
             {
-                name: 'Manager', 
-                description: 'Building and facility management access',
+                name: 'Technician', 
+                description: 'Thợ sửa - View assigned bookings and update status to FIXED',
                 isActive: true
             },
             {
                 name: 'User',
-                description: 'Tenant access - can book facility repairs',
+                description: 'Tenant - Rent apartments, create facility repair bookings, confirm DONE',
                 isActive: true
             }
         ]);
@@ -39,31 +39,17 @@ const seedDatabase = async () => {
                 isActive: true
             },
             {
-                title: 'Building Manager',
-                description: 'Manages building operations and tenant relations',
-                department: 'Building Management',
-                salary: 65000.00,
+                title: 'Thợ sửa điện',
+                description: 'Electrician - Fixes electrical facilities in apartments',
+                department: 'Maintenance',
+                salary: 45000.00,
                 isActive: true
             },
             {
-                title: 'Facility Manager',
-                description: 'Manages facility maintenance and repair bookings',
-                department: 'Facility Management',
-                salary: 55000.00,
-                isActive: true
-            },
-            {
-                title: 'Booking Manager',
-                description: 'Manages facility booking schedules and assignments',
-                department: 'Operations',
-                salary: 50000.00,
-                isActive: true
-            },
-            {
-                title: 'Landlord',
-                description: 'Property owner who rents out apartments',
-                department: 'Property Management',
-                salary: 0.00,
+                title: 'Thợ sửa nước',
+                description: 'Plumber - Fixes plumbing facilities in apartments',
+                department: 'Maintenance',
+                salary: 45000.00,
                 isActive: true
             },
             {
@@ -88,31 +74,34 @@ const seedDatabase = async () => {
                 dateOfBirth: '1985-01-01',
                 roleId: roles[0].id, // Admin role
                 positionId: positions[0].id, // System Administrator
-                isActive: true
+                isActive: true,
+                hasRentedApartment: false
             },
             {
                 firstName: 'Nguyễn',
-                lastName: 'Văn Quản',
-                email: 'manager@building.com',
-                password: 'manager123',
+                lastName: 'Văn Điện',
+                email: 'electrician@building.com',
+                password: 'tech123',
                 phone: '+84901000002',
                 address: '268 Lý Thường Kiệt, Quận 10, TP.HCM',
-                dateOfBirth: '1980-05-15',
-                roleId: roles[1].id, // Manager role
-                positionId: positions[1].id, // Building Manager
-                isActive: true
+                dateOfBirth: '1990-05-15',
+                roleId: roles[1].id, // Technician role
+                positionId: positions[1].id, // Thợ sửa điện
+                isActive: true,
+                hasRentedApartment: false
             },
             {
                 firstName: 'Trần',
-                lastName: 'Thị Sửa',
-                email: 'facility@building.com',
-                password: 'facility123',
+                lastName: 'Văn Nước',
+                email: 'plumber@building.com',
+                password: 'tech123',
                 phone: '+84901000003',
                 address: '268 Lý Thường Kiệt, Quận 10, TP.HCM',
                 dateOfBirth: '1988-08-20',
-                roleId: roles[1].id, // Manager role
-                positionId: positions[2].id, // Facility Manager
-                isActive: true
+                roleId: roles[1].id, // Technician role
+                positionId: positions[2].id, // Thợ sửa nước
+                isActive: true,
+                hasRentedApartment: false
             },
             {
                 firstName: 'Lê',
@@ -123,8 +112,9 @@ const seedDatabase = async () => {
                 address: 'Căn 0101 - Block S.01',
                 dateOfBirth: '1990-12-10',
                 roleId: roles[2].id, // User role (tenant)
-                positionId: positions[5].id, // Tenant
-                isActive: true
+                positionId: positions[3].id, // Tenant
+                isActive: true,
+                hasRentedApartment: true // Đã thuê căn hộ
             },
             {
                 firstName: 'Huỳnh',
@@ -135,20 +125,22 @@ const seedDatabase = async () => {
                 address: 'Căn 0102 - Block S.01',
                 dateOfBirth: '1995-03-25',
                 roleId: roles[2].id, // User role (tenant)
-                positionId: positions[5].id, // Tenant
-                isActive: true
+                positionId: positions[3].id, // Tenant
+                isActive: true,
+                hasRentedApartment: true // Đã thuê căn hộ
             },
             {
                 firstName: 'Phạm',
                 lastName: 'Thu Hà',
-                email: 'landlord1@gmail.com',
-                password: 'landlord123',
+                email: 'user@gmail.com',
+                password: 'user123',
                 phone: '+84901000006',
-                address: 'Chủ sở hữu nhiều căn hộ',
-                dateOfBirth: '1975-07-30',
-                roleId: roles[1].id, // Manager role (can manage their properties)
-                positionId: positions[4].id, // Landlord
-                isActive: true
+                address: 'Chưa có địa chỉ',
+                dateOfBirth: '1992-07-30',
+                roleId: roles[2].id, // User role
+                positionId: positions[3].id, // Tenant
+                isActive: true,
+                hasRentedApartment: false // Chưa thuê căn hộ
             }
         ], { individualHooks: true });
         console.log('Users created successfully');
@@ -219,16 +211,16 @@ const seedDatabase = async () => {
 
         // Create facilities for apartment maintenance and repair
         const facilities = await Facility.bulkCreate([
-            { name: 'Điện nước', description: 'Sửa chữa hệ thống điện, nước trong căn hộ', quantity: 1 },
+            { name: 'Điện', description: 'Hệ thống điện trong căn hộ (ổ cắm, công tắc, đèn)', quantity: 1 },
+            { name: 'Nước', description: 'Hệ thống nước (vòi, bồn rửa, toilet)', quantity: 1 },
             { name: 'Điều hòa', description: 'Bảo trì, sửa chữa điều hòa không khí', quantity: 1 },
-            { name: 'Thang máy', description: 'Bảo trì thang máy chung', quantity: 2 },
-            { name: 'Vệ sinh chung', description: 'Dọn dẹp khu vực chung', quantity: 1 },
-            { name: 'An ninh', description: 'Dịch vụ bảo vệ và giám sát', quantity: 1 }
+            { name: 'Cửa sổ', description: 'Sửa chữa cửa sổ, khóa cửa sổ', quantity: 1 },
+            { name: 'Sơn tường', description: 'Sơn lại tường căn hộ', quantity: 1 }
         ]);
 
         console.log('Database seeding completed successfully!');
         console.log('\nSeeded Data Summary:');
-        console.log(`- ${roles.length} roles created (Admin, Manager, User)`);
+        console.log(`- ${roles.length} roles created (Admin, Technician, User)`);
         console.log(`- ${positions.length} positions created`);
         console.log(`- ${users.length} users created`);
         console.log(`- 1 building complex created`);
@@ -239,11 +231,11 @@ const seedDatabase = async () => {
 
         console.log('\nTest Credentials:');
         console.log('Admin: admin@building.com / admin123');
-        console.log('Manager: manager@building.com / manager123');
-        console.log('Facility Manager: facility@building.com / facility123');
-        console.log('Tenant 1: tenant1@gmail.com / tenant123');
-        console.log('Tenant 2: student@gmail.com / student123');
-        console.log('Landlord: landlord1@gmail.com / landlord123');
+        console.log('Thợ điện: electrician@building.com / tech123');
+        console.log('Thợ nước: plumber@building.com / tech123');
+        console.log('Tenant 1 (có thuê): tenant1@gmail.com / tenant123');
+        console.log('Tenant 2 (có thuê): student@gmail.com / student123');
+        console.log('User (chưa thuê): user@gmail.com / user123');
 
         process.exit(0);
     } catch (error) {

@@ -3,6 +3,11 @@ const router = express.Router();
 const apartmentController = require('../controllers/apartment.controller');
 const { authMiddleware, adminMiddleware, managerMiddleware } = require('../middleware/auth');
 
+// Public routes - no authentication required
+router.get('/vacant', apartmentController.getVacantApartments);
+router.get('/top-viewed', apartmentController.getTopViewedApartments);
+router.get('/top-viewed-vacant', apartmentController.getTopViewedVacantApartments);
+
 // Public routes for authenticated users
 router.get('/stats', authMiddleware, apartmentController.getApartmentStats);
 

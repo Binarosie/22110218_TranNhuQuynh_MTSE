@@ -24,7 +24,13 @@ const Facility = sequelize.define('Facility', {
         validate: {
             min: 1
         }
+    },
+    deletedAt: {
+        type: DataTypes.DATE,
+        allowNull: true
     }
+}, {
+    paranoid: true
 });
 
 module.exports = Facility;
