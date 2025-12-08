@@ -310,6 +310,13 @@ const markAsDone = async (req, res) => {
         booking.status = 'DONE';
         await booking.save();
 
+        // Create announcement for completion
+        await Announcement.create({
+            title: `Booking #${booking.id} đã hoàn thành`,
+            content: `User đã xác nhận hoàn thành sửa chữa ${booking.facility.name}. Công việc đã kết thúc.`,
+            publishedAt: new Date()
+        });
+
         const updatedBooking = await FacilityBooking.findByPk(id, {
             include: [
                 { model: Facility, as: 'facility' },
