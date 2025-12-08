@@ -17,7 +17,13 @@ const Block = sequelize.define('Block', {
   buildingId: {
     type: DataTypes.INTEGER,
     allowNull: false
+  },
+  deletedAt: {
+    type: DataTypes.DATE,
+    allowNull: true
   }
+}, {
+  paranoid: true
 });
 
 module.exports = Block;

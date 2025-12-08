@@ -44,7 +44,18 @@ const Apartment = sequelize.define('Apartment', {
     leaseEndDate: {
         type: DataTypes.DATE,
         allowNull: true
+    },
+    viewCount: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+        comment: 'Number of times this apartment was viewed'
+    },
+    deletedAt: {
+        type: DataTypes.DATE,
+        allowNull: true
     }
+}, {
+    paranoid: true
 });
 
 module.exports = Apartment;

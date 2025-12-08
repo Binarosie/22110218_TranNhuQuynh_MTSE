@@ -7,6 +7,8 @@ require("dotenv").config();
 const { sequelize } = require("./config/database");
 const routes = require("./routes");
 const { errorHandler } = require("./middleware/error.handler");
+const { apiLimiter } = require("./middleware/rateLimit");
+const { cleanupExpiredTokens } = require("./utils/tokenCleanup");
 
 const app = express();
 
@@ -15,6 +17,8 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
 
+// Apply rate limiting to all API routes
+app.use("/api", apiLimiter);
 app.use("/api", routes);
 
 // health
@@ -30,6 +34,18 @@ sequelize.authenticate()
   .then(() => sequelize.sync({ force: false }))
   .then(() => {
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    
+    // Clean up expired tokens every 24 hours
+    setInterval(() => {
+      cleanupExpiredTokens().catch(err => 
+        console.error('Token cleanup failed:', err)
+      );
+    }, 24 * 60 * 60 * 1000);
+    
+    // Run cleanup on startup
+    cleanupExpiredTokens().catch(err => 
+      console.error('Initial token cleanup failed:', err)
+    );
   })
   .catch((err) => {
     console.error("Unable to start server:", err);

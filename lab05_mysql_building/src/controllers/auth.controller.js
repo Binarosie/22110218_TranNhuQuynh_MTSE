@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
-const { User, Role, Position } = require('../models');
+const { User, Role, Position, TokenBlacklist } = require('../models');
 
 const generateToken = (userId) => {
     return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
@@ -27,26 +27,26 @@ const register = async (req, res) => {
             });
         }
 
-        // Validate role and position if provided
+        // Set default roleId = 3 (User) and positionId = 3 if not provided
+        const finalRoleId = roleId || 3;
+        const finalPositionId = positionId || 4;
+
+        // Validate role and position
         let role = null, position = null;
-        if (roleId) {
-            role = await Role.findByPk(roleId);
-            if (!role || !role.isActive) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Invalid role selected'
-                });
-            }
+        role = await Role.findByPk(finalRoleId);
+        if (!role || !role.isActive) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid role selected'
+            });
         }
 
-        if (positionId) {
-            position = await Position.findByPk(positionId);
-            if (!position || !position.isActive) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Invalid position selected'
-                });
-            }
+        position = await Position.findByPk(finalPositionId);
+        if (!position || !position.isActive) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid position selected'
+            });
         }
 
         // Create user
@@ -58,8 +58,8 @@ const register = async (req, res) => {
             phone,
             address,
             dateOfBirth,
-            roleId: roleId || null,
-            positionId: positionId || null
+            roleId: finalRoleId,
+            positionId: finalPositionId
         };
 
         const user = await User.create(userData);
@@ -482,6 +482,47 @@ const changePassword = async (req, res) => {
     }
 };
 
+const logout = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const token = req.token;
+
+        // Decode token to get expiration time
+        const decoded = jwt.decode(token);
+        const expiresAt = new Date(decoded.exp * 1000);
+
+        // Add token to blacklist
+        await TokenBlacklist.create({
+            token,
+            userId,
+            expiresAt,
+            reason: 'logout'
+        });
+
+        // Update last login timestamp
+        await User.update(
+            { lastLogin: new Date() },
+            { where: { id: userId } }
+        );
+
+        res.json({
+            success: true,
+            message: 'Logged out successfully',
+            data: {
+                clearToken: true,
+                clearCache: true
+            }
+        });
+    } catch (error) {
+        console.error('Logout error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to logout',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     register,
     login,
@@ -489,5 +530,6 @@ module.exports = {
     resetPassword,
     getProfile,
     updateProfile,
-    changePassword
+    changePassword,
+    logout
 };

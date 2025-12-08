@@ -14,7 +14,13 @@ const Floor = sequelize.define('Floor', {
   blockId: {
     type: DataTypes.INTEGER,
     allowNull: false
+  },
+  deletedAt: {
+    type: DataTypes.DATE,
+    allowNull: true
   }
+}, {
+  paranoid: true
 });
 
 module.exports = Floor;

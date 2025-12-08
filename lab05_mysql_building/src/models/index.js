@@ -13,6 +13,7 @@ const Apartment = require('./Apartment');
 const Facility = require('./Facility');
 const FacilityBooking = require('./FacilityBooking');
 const Announcement = require('./Announcement');
+const TokenBlacklist = require('./TokenBlacklist');
 
 // Define associations
 User.belongsTo(Role, {
@@ -48,12 +49,18 @@ FacilityBooking.belongsTo(Facility, { foreignKey: 'facilityId', as: 'facility' }
 Apartment.hasMany(FacilityBooking, { foreignKey: 'apartmentId', as: 'facilityBookings' });
 FacilityBooking.belongsTo(Apartment, { foreignKey: 'apartmentId', as: 'apartment' });
 
-User.hasMany(FacilityBooking, { foreignKey: 'userId', as: 'facilityBookings' });
+// User creates booking
+User.hasMany(FacilityBooking, { foreignKey: 'userId', as: 'createdBookings' });
 FacilityBooking.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+// Technician assigned to booking
+User.hasMany(FacilityBooking, { foreignKey: 'assignedTo', as: 'assignedBookings' });
+FacilityBooking.belongsTo(User, { foreignKey: 'assignedTo', as: 'assignedTechnician' });
 
 module.exports = {
   sequelize,
   User, Role, Position,
   Building, Block, Floor, Apartment,
-  Facility, FacilityBooking, Announcement
+  Facility, FacilityBooking, Announcement,
+  TokenBlacklist
 };

@@ -271,6 +271,125 @@ const getApartmentStats = async (req, res) => {
   }
 };
 
+// Public API: Get all vacant apartments
+const getVacantApartments = async (req, res) => {
+  try {
+    const { page = 1, pageSize = 20, blockId, floorId, minArea, maxArea, minRent, maxRent } = req.query;
+    const offset = (page - 1) * pageSize;
+    
+    const where = { status: 'vacant' };
+    
+    // Filter by floor
+    if (floorId) {
+      where.floorId = floorId;
+    }
+    
+    // Filter by area range
+    if (minArea) {
+      where.area = { ...where.area, [Op.gte]: parseFloat(minArea) };
+    }
+    if (maxArea) {
+      where.area = { ...where.area, [Op.lte]: parseFloat(maxArea) };
+    }
+    
+    // Filter by rent range
+    if (minRent) {
+      where.monthlyRent = { ...where.monthlyRent, [Op.gte]: parseFloat(minRent) };
+    }
+    if (maxRent) {
+      where.monthlyRent = { ...where.monthlyRent, [Op.lte]: parseFloat(maxRent) };
+    }
+    
+    const include = [
+      { 
+        model: Floor, 
+        as: 'floor',
+        include: [{ model: Block, as: 'block', include: [{ model: Building, as: 'building' }] }],
+        ...(blockId && { where: { blockId } })
+      }
+    ];
+    
+    const result = await Apartment.findAndCountAll({ 
+      where, 
+      include,
+      limit: parseInt(pageSize), 
+      offset: parseInt(offset), 
+      order: [['monthlyRent', 'ASC'], ['number', 'ASC']]
+    });
+    
+    res.json({ 
+      success: true, 
+      data: result.rows, 
+      total: result.count, 
+      page: parseInt(page), 
+      pages: Math.ceil(result.count / pageSize) 
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Public API: Get top10 viewed vacant apartments
+const getTopViewedVacantApartments = async (req, res) => {
+  try {
+    const { limit = 10 } = req.query;
+    
+    const apartments = await Apartment.findAll({
+      where: { status: 'vacant' },
+      include: [
+        { 
+          model: Floor, 
+          as: 'floor',
+          include: [{ model: Block, as: 'block', include: [{ model: Building, as: 'building' }] }]
+        }
+      ],
+      order: [['viewCount', 'DESC'], ['monthlyRent', 'ASC']],
+      limit: parseInt(limit)
+    });
+    
+    res.json({ 
+      success: true, 
+      data: apartments,
+      total: apartments.length
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// Public API: Get top10 viewed apartments (all status)
+const getTopViewedApartments = async (req, res) => {
+  try {
+    const { limit = 10 } = req.query;
+    
+    const apartments = await Apartment.findAll({
+      include: [
+        { 
+          model: Floor, 
+          as: 'floor',
+          include: [{ model: Block, as: 'block', include: [{ model: Building, as: 'building' }] }]
+        },
+        { 
+          model: User, 
+          as: 'tenant',
+          required: false,
+          attributes: ['id', 'firstName', 'lastName', 'email', 'phone']
+        }
+      ],
+      order: [['viewCount', 'DESC'], ['number', 'ASC']],
+      limit: parseInt(limit)
+    });
+    
+    res.json({ 
+      success: true, 
+      data: apartments,
+      total: apartments.length
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 module.exports = { 
   listApartments, 
   createApartment, 
@@ -279,5 +398,8 @@ module.exports = {
   deleteApartment,
   assignTenant,
   removeTenant,
-  getApartmentStats
+  getApartmentStats,
+  getVacantApartments,
+  getTopViewedVacantApartments,
+  getTopViewedApartments
 };

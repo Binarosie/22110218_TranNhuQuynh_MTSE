@@ -68,6 +68,11 @@ const User = sequelize.define('User', {
         type: DataTypes.BOOLEAN,
         defaultValue: true
     },
+    hasRentedApartment: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        comment: 'True if user has rented an apartment'
+    },
     lastLogin: {
         type: DataTypes.DATE,
         allowNull: true
@@ -79,8 +84,13 @@ const User = sequelize.define('User', {
     resetPasswordExpires: {
         type: DataTypes.DATE,
         allowNull: true
+    },
+    deletedAt: {
+        type: DataTypes.DATE,
+        allowNull: true
     }
 }, {
+    paranoid: true,
     hooks: {
         beforeCreate: async (user) => {
             if (user.password) {
