@@ -84,7 +84,7 @@ const ApartmentDetail = () => {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Căn hộ #{apartment.id}</h1>
           <p className="mt-1 text-gray-600">
-            {apartment.floor?.block?.building?.name} - {apartment.floor?.block?.name} - Tầng {apartment.floor?.floor_number}
+            {apartment.floor?.block?.building?.name} - {apartment.floor?.block?.name} - Tầng {apartment.floor?.number ?? 'N/A'}
           </p>
         </div>
         <Button variant="secondary" onClick={() => navigate(-1)}>
@@ -136,7 +136,7 @@ const ApartmentDetail = () => {
             <div>
               <label className="text-sm font-medium text-gray-500">Tầng</label>
               <p className="mt-1 text-lg text-gray-900">
-                Tầng {apartment.floor?.floor_number || 'N/A'}
+                Tầng {apartment.floor?.number ?? 'N/A'}
               </p>
             </div>
           </div>

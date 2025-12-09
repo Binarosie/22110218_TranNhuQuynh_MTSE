@@ -27,9 +27,9 @@ const register = async (req, res) => {
             });
         }
 
-        // Set default roleId = 3 (User) and positionId = 3 if not provided
-        const finalRoleId = roleId || 3;
-        const finalPositionId = positionId || 4;
+        // Set default roleId = 3 (User) and positionId = 4 if not provided
+        const finalRoleId = roleId ?? 3;
+        const finalPositionId = positionId ?? 4;
 
         // Validate role and position
         let role = null, position = null;

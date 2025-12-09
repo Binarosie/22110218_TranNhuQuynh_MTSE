@@ -108,7 +108,7 @@ const MyApartments = () => {
                       {apartment.floor?.block?.building?.name}
                     </p>
                     <p className="text-sm text-gray-500">
-                      {apartment.floor?.block?.name} - Tầng {apartment.floor?.floor_number}
+                      {apartment.floor?.block?.name} - Tầng {apartment.floor?.number ?? 'N/A'}
                     </p>
                   </div>
                   {getStatusBadge(apartment.status)}

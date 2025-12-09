@@ -32,8 +32,12 @@ const schema = yup.object({
         .optional(),
     address: yup.string().optional(),
     dateOfBirth: yup.date().max(new Date(), 'Date of birth cannot be in the future').optional(),
-    roleId: yup.number().optional(),
-    positionId: yup.number().optional(),
+    roleId: yup.number().nullable().transform((value, originalValue) => 
+        originalValue === '' || isNaN(originalValue) ? null : value
+    ),
+    positionId: yup.number().nullable().transform((value, originalValue) => 
+        originalValue === '' || isNaN(originalValue) ? null : value
+    ),
 });
 
 const UserCreate = () => {
@@ -347,7 +351,7 @@ const UserCreate = () => {
                                         </label>
                                         <div className="mt-1">
                                             <select
-                                                {...register('roleId')}
+                                                {...register('roleId', { valueAsNumber: true })}
                                                 className={`
                           block w-full px-3 py-2 border 
                           ${errors.roleId ? 'border-red-300' : 'border-gray-300'}
@@ -374,7 +378,7 @@ const UserCreate = () => {
                                         </label>
                                         <div className="mt-1">
                                             <select
-                                                {...register('positionId')}
+                                                {...register('positionId', { valueAsNumber: true })}
                                                 className={`
                           block w-full px-3 py-2 border 
                           ${errors.positionId ? 'border-red-300' : 'border-gray-300'}

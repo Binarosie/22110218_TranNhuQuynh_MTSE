@@ -191,11 +191,14 @@ const Login = () => {
                     {/* Test Credentials */}
                     <div className="mt-6 border-t border-gray-200 pt-6">
                         <div className="text-sm text-gray-600">
-                            <p className="font-medium mb-2">Test Credentials:</p>
+                            <p className="font-medium mb-2">Test Credentials (password: password123):</p>
                             <div className="space-y-1 text-xs">
-                                <p><strong>Admin:</strong> admin@example.com / admin123</p>
-                                <p><strong>Manager:</strong> manager@example.com / manager123</p>
-                                <p><strong>Employee:</strong> alice@example.com / alice123</p>
+                                <p><strong>Admin:</strong> admin@building.com</p>
+                                <p><strong>Thợ điện:</strong> electrician@building.com</p>
+                                <p><strong>Thợ nước:</strong> plumber@building.com</p>
+                                <p><strong>Tenant 1:</strong> tenant1@gmail.com</p>
+                                <p><strong>Tenant 2:</strong> tenant2@gmail.com</p>
+                                <p><strong>User:</strong> user@gmail.com</p>
                             </div>
                         </div>
                     </div>

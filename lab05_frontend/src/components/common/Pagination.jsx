@@ -5,7 +5,8 @@ import React from 'react';
  * @param {object} props - Component props
  * @param {number} props.currentPage - Current page number
  * @param {number} props.totalPages - Total number of pages
- * @param {number} props.total - Total number of items
+ * @param {number} props.total - Total number of items (legacy prop for UserList, ApartmentManagement)
+ * @param {number} props.totalItems - Total number of items (new prop for MyBookings, Browse)
  * @param {Function} props.onPageChange - Callback when page changes
  * @param {number} props.pageSize - Items per page
  * @param {Function} props.onPageSizeChange - Callback when page size changes
@@ -14,12 +15,20 @@ import React from 'react';
 const Pagination = ({
   currentPage = 1,
   totalPages = 1,
-  total = 0,
+  total,
+  totalItems,
   onPageChange,
   pageSize = 20,
   onPageSizeChange,
   pageSizeOptions = [10, 20, 50, 100],
 }) => {
+  // Ưu tiên totalItems, fallback sang total
+  const totalCount =
+    typeof totalItems === 'number'
+      ? totalItems
+      : typeof total === 'number'
+      ? total
+      : 0;
   const generatePageNumbers = () => {
     const pages = [];
     const maxVisible = 5;
@@ -38,8 +47,8 @@ const Pagination = ({
   };
 
   const pages = generatePageNumbers();
-  const startItem = (currentPage - 1) * pageSize + 1;
-  const endItem = Math.min(currentPage * pageSize, total);
+  const startItem = totalCount === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const endItem = totalCount === 0 ? 0 : Math.min(currentPage * pageSize, totalCount);
 
   return (
     <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
@@ -64,15 +73,17 @@ const Pagination = ({
       {/* Desktop view */}
       <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
-          {total > 0 ? (
-            <p className="text-sm text-gray-700">
-              Hiển thị <span className="font-medium">{startItem}</span> đến{' '}
-              <span className="font-medium">{endItem}</span> trong{' '}
-              <span className="font-medium">{total}</span> kết quả
-            </p>
-          ) : (
-            <p className="text-sm text-gray-700">Không có kết quả nào</p>
-          )}
+          <p className="text-sm text-gray-700">
+            {totalCount === 0
+              ? 'Không có kết quả nào'
+              : (
+                <>
+                  Hiển thị <span className="font-medium">{startItem}</span> đến{' '}
+                  <span className="font-medium">{endItem}</span> trong{' '}
+                  <span className="font-medium">{totalCount}</span> kết quả
+                </>
+              )}
+          </p>
 
           {onPageSizeChange && (
             <select

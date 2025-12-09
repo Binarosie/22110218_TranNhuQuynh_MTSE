@@ -58,14 +58,14 @@ const MyBookings = () => {
     fetchBookings();
   }, [fetchBookings]);
 
-  // ✅ Reset page về 1 khi search hoặc statusFilter thực sự thay đổi
+  // Reset page về 1 khi search hoặc statusFilter thực sự thay đổi
   useEffect(() => {
     if (page !== 1) {
       goToPage(1);
     }
   }, [search, statusFilter]);
 
-  // 🔧 Debug helper - expose to window for console testing
+  // Debug helper - expose to window for console testing
   useEffect(() => {
     window.__pagination__ = {
       get state() {
@@ -120,7 +120,7 @@ const MyBookings = () => {
 
   const handleSearchChange = (value) => {
     setSearch(value);
-    // ✅ KHÔNG gọi goToPage(1) ở đây - để useEffect xử lý
+    //  KHÔNG gọi goToPage(1) ở đây - để useEffect xử lý
   };
 
   return (
@@ -157,7 +157,7 @@ const MyBookings = () => {
           value={statusFilter}
           onChange={(e) => {
             setStatusFilter(e.target.value);
-            // ✅ KHÔNG gọi goToPage(1) ở đây - để useEffect xử lý
+            // KHÔNG gọi goToPage(1) ở đây - để useEffect xử lý
           }}
           className="rounded-lg border border-gray-300 px-4 py-2 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
         >

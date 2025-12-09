@@ -212,18 +212,22 @@ export const AuthProvider = ({ children }) => {
             return userRole === 'Admin';
         }
 
-        if (requiredRole === 'Manager') {
-            return ['Admin', 'Manager'].includes(userRole);
+        if (requiredRole === 'Technician') {
+            return userRole === 'Technician';
         }
 
-        return true;
+        if (requiredRole === 'User') {
+            return userRole === 'User';
+        }
+
+        return false;
     };
 
     // Helper function to check if user is admin
     const isAdmin = () => hasRole('Admin');
 
-    // Helper function to check if user is manager or admin
-    const isManager = () => hasRole('Manager');
+    // Helper function to check if user is technician
+    const isTechnician = () => hasRole('Technician');
 
     const value = {
         user,
@@ -237,7 +241,7 @@ export const AuthProvider = ({ children }) => {
         resetPassword,
         hasRole,
         isAdmin,
-        isManager
+        isTechnician
     };
 
     return (
