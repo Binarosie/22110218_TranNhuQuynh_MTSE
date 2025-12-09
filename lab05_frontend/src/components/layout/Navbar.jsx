@@ -33,8 +33,23 @@ const Navbar = () => {
                                 Dashboard
                             </Link>
 
-                            {(user?.role?.name === 'Manager' || user?.role?.name === 'Admin') && (
+                            {/* Admin Routes */}
+                            {user?.role?.name === 'Admin' && (
                                 <>
+                                    <Link
+                                        to="/apartments"
+                                        className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
+                                    >
+                                        <Home className="h-4 w-4 mr-2" />
+                                        Apartments
+                                    </Link>
+                                    <Link
+                                        to="/bookings"
+                                        className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
+                                    >
+                                        <Bell className="h-4 w-4 mr-2" />
+                                        Bookings
+                                    </Link>
                                     <Link
                                         to="/users"
                                         className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
@@ -42,25 +57,45 @@ const Navbar = () => {
                                         <Users className="h-4 w-4 mr-2" />
                                         Users
                                     </Link>
-
-                                    <Link
-                                        to="/blocks"
-                                        className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
-                                    >
-                                        <Home className="h-4 w-4 mr-2" />
-                                        Blocks
-                                    </Link>
                                 </>
                             )}
 
-                            {user?.role?.name === 'Admin' && (
+                            {/* Technician Routes */}
+                            {user?.role?.name === 'Technician' && (
                                 <Link
-                                    to="/users/create"
+                                    to="/my-bookings"
                                     className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
                                 >
-                                    <UserPlus className="h-4 w-4 mr-2" />
-                                    Create User
+                                    <Bell className="h-4 w-4 mr-2" />
+                                    My Bookings
                                 </Link>
+                            )}
+
+                            {/* User Routes */}
+                            {user?.role?.name === 'User' && (
+                                <>
+                                    <Link
+                                        to="/browse"
+                                        className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
+                                    >
+                                        <Home className="h-4 w-4 mr-2" />
+                                        Browse
+                                    </Link>
+                                    <Link
+                                        to="/my-apartments"
+                                        className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
+                                    >
+                                        <Home className="h-4 w-4 mr-2" />
+                                        My Apartments
+                                    </Link>
+                                    <Link
+                                        to="/my-bookings"
+                                        className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
+                                    >
+                                        <Bell className="h-4 w-4 mr-2" />
+                                        My Bookings
+                                    </Link>
+                                </>
                             )}
                         </div>
                     </div>
@@ -95,7 +130,7 @@ const Navbar = () => {
                             <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform group-hover:translate-y-0 translate-y-1">
                                 <div className="px-4 py-2 border-b border-gray-100">
                                     <p className="text-sm font-medium text-gray-900">
-                                        {user?.firstName} {user?.lastName}
+                                        {user?.username}
                                     </p>
                                     <p className="text-sm text-gray-500">{user?.email}</p>
                                 </div>

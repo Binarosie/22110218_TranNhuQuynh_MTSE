@@ -57,6 +57,15 @@ const createFloor = async (req, res) => {
   try {
     const { number, blockId } = req.body;
     
+    // ✅ Validate block exists
+    const block = await Block.findByPk(blockId);
+    if (!block) {
+      return res.status(400).json({
+        success: false,
+        message: 'Block không tồn tại. Vui lòng tạo block trước.'
+      });
+    }
+    
     // Check if floor number already exists in the block
     const existingFloor = await Floor.findOne({
       where: { number, blockId }

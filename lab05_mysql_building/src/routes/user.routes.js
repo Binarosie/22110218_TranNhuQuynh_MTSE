@@ -8,7 +8,8 @@ const {
     deleteUser,
     toggleUserStatus,
     getRoles,
-    getPositions
+    getPositions,
+    listTechnicians
 } = require('../controllers/user.controller');
 const { authMiddleware, adminMiddleware, managerMiddleware } = require('../middleware/auth');
 const { handleUploadError } = require('../middleware/upload');
@@ -55,6 +56,7 @@ router.use(authMiddleware);
 // Admin only routes for roles and positions
 router.get('/roles', adminMiddleware, getRoles);
 router.get('/positions', adminMiddleware, getPositions);
+router.get('/technicians', adminMiddleware, listTechnicians);
 
 // Manager and Admin routes
 router.get('/', managerMiddleware, getAllUsers);

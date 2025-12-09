@@ -1,34 +1,81 @@
 const { Apartment, Floor, Block, Building, User } = require('../models');
-const { Op } = require('sequelize');
+const { Op, fn, col } = require('sequelize');
 
 const listApartments = async (req, res) => {
   try {
-    const { page = 1, pageSize = 20, search, status, blockId, floorId } = req.query;
-    const offset = (page - 1) * pageSize;
+    const {
+      page = 1,
+      limit = 10,
+      status,
+      search,
+      buildingId,
+      blockId,
+      floorId,
+      minArea,
+      maxArea,
+      minRent,
+      maxRent,
+      sortBy
+    } = req.query;
+
+    const offset = (page - 1) * limit;
     const where = {};
-    
-    // Search by apartment number
-    if (search) {
-      where.number = { [Op.like]: `%${search}%` };
-    }
-    
-    // Filter by status
-    if (status) {
+
+    // ✅ Status filter (dynamic - all statuses supported)
+    if (status && status !== 'all') {
       where.status = status;
     }
-    
-    // Filter by floor
+
+    // ✅ Floor filter
     if (floorId) {
       where.floorId = floorId;
     }
-    
-    // Filter by block (need to join with floor)
+
+    // ✅ Area range
+    if (minArea || maxArea) {
+      where.area = {};
+      if (minArea) where.area[Op.gte] = parseFloat(minArea);
+      if (maxArea) where.area[Op.lte] = parseFloat(maxArea);
+    }
+
+    // ✅ Rent range
+    if (minRent || maxRent) {
+      where.monthlyRent = {};
+      if (minRent) where.monthlyRent[Op.gte] = parseFloat(minRent);
+      if (maxRent) where.monthlyRent[Op.lte] = parseFloat(maxRent);
+    }
+
+    // ✅ Fuzzy search across apartment number, block name, building name
+    if (search) {
+      where[Op.or] = [
+        { number: { [Op.like]: `%${search}%` } },
+        { '$floor.block.name$': { [Op.like]: `%${search}%` } },
+        { '$floor.block.building.name$': { [Op.like]: `%${search}%` } }
+      ];
+    }
+
+    // ✅ Include with required: true for fuzzy search to work
     const include = [
-      { 
-        model: Floor, 
+      {
+        model: Floor,
         as: 'floor',
-        include: [{ model: Block, as: 'block', include: [{ model: Building, as: 'building' }] }],
-        ...(blockId && { where: { blockId } })
+        required: true,
+        include: [
+          {
+            model: Block,
+            as: 'block',
+            required: true,
+            ...(blockId && { where: { id: blockId } }),
+            include: [
+              {
+                model: Building,
+                as: 'building',
+                required: true,
+                ...(buildingId && { where: { id: buildingId } })
+              }
+            ]
+          }
+        ]
       },
       { 
         model: User, 
@@ -37,21 +84,49 @@ const listApartments = async (req, res) => {
         attributes: ['id', 'firstName', 'lastName', 'email', 'phone']
       }
     ];
+
+    // ✅ Sắp xếp
+    let order = [['createdAt', 'DESC'], ['id', 'ASC']];
     
-    const result = await Apartment.findAndCountAll({ 
-      where, 
+    switch (sortBy) {
+      case 'price_asc':
+        order = [['monthlyRent', 'ASC'], ['id', 'ASC']];
+        break;
+      
+      case 'price_desc':
+        order = [['monthlyRent', 'DESC'], ['id', 'ASC']];
+        break;
+      
+      case 'newest':
+        order = [['createdAt', 'DESC'], ['id', 'ASC']];
+        break;
+      
+      case 'view_desc':
+        order = [['viewCount', 'DESC'], ['id', 'ASC']];
+        break;
+      
+      default:
+        order = [['createdAt', 'DESC'], ['id', 'ASC']];
+    }
+
+    const result = await Apartment.findAndCountAll({
+      where,
       include,
-      limit: parseInt(pageSize), 
-      offset: parseInt(offset), 
-      order: [['number', 'ASC']]
+      offset: parseInt(offset),
+      limit: parseInt(limit),
+      order,
+      distinct: true // ✅ CRITICAL for correct count with joins
     });
-    
-    res.json({ 
-      success: true, 
-      data: result.rows, 
-      total: result.count, 
-      page: parseInt(page), 
-      pages: Math.ceil(result.count / pageSize) 
+
+    res.json({
+      success: true,
+      data: result.rows,
+      pagination: {
+        page: parseInt(page),
+        pageSize: parseInt(limit),
+        totalItems: result.count,
+        totalPages: Math.ceil(result.count / limit)
+      }
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -274,55 +349,121 @@ const getApartmentStats = async (req, res) => {
 // Public API: Get all vacant apartments
 const getVacantApartments = async (req, res) => {
   try {
-    const { page = 1, pageSize = 20, blockId, floorId, minArea, maxArea, minRent, maxRent } = req.query;
-    const offset = (page - 1) * pageSize;
-    
-    const where = { status: 'vacant' };
-    
-    // Filter by floor
+    const {
+      page = 1,
+      limit = 12,
+      search,
+      buildingId,
+      blockId,
+      floorId,
+      minArea,
+      maxArea,
+      minRent,
+      maxRent,
+      sortBy
+    } = req.query;
+
+    const offset = (page - 1) * limit;
+    const where = {};
+
+    // ✅ ALWAYS vacant - this is the semantic meaning of this endpoint
+    where.status = 'vacant';
+
+    // ✅ Floor filter
     if (floorId) {
       where.floorId = floorId;
     }
-    
-    // Filter by area range
-    if (minArea) {
-      where.area = { ...where.area, [Op.gte]: parseFloat(minArea) };
+
+    // ✅ Area range
+    if (minArea || maxArea) {
+      where.area = {};
+      if (minArea) where.area[Op.gte] = parseFloat(minArea);
+      if (maxArea) where.area[Op.lte] = parseFloat(maxArea);
     }
-    if (maxArea) {
-      where.area = { ...where.area, [Op.lte]: parseFloat(maxArea) };
+
+    // ✅ Rent range
+    if (minRent || maxRent) {
+      where.monthlyRent = {};
+      if (minRent) where.monthlyRent[Op.gte] = parseFloat(minRent);
+      if (maxRent) where.monthlyRent[Op.lte] = parseFloat(maxRent);
     }
-    
-    // Filter by rent range
-    if (minRent) {
-      where.monthlyRent = { ...where.monthlyRent, [Op.gte]: parseFloat(minRent) };
+
+    // ✅ Fuzzy search across apartment number, block name, building name
+    if (search) {
+      where[Op.or] = [
+        { number: { [Op.like]: `%${search}%` } },
+        { '$floor.block.name$': { [Op.like]: `%${search}%` } },
+        { '$floor.block.building.name$': { [Op.like]: `%${search}%` } }
+      ];
     }
-    if (maxRent) {
-      where.monthlyRent = { ...where.monthlyRent, [Op.lte]: parseFloat(maxRent) };
-    }
-    
+
+    // ✅ Include with required: true for fuzzy search to work
     const include = [
-      { 
-        model: Floor, 
+      {
+        model: Floor,
         as: 'floor',
-        include: [{ model: Block, as: 'block', include: [{ model: Building, as: 'building' }] }],
-        ...(blockId && { where: { blockId } })
+        required: true,
+        include: [
+          {
+            model: Block,
+            as: 'block',
+            required: true,
+            ...(blockId && { where: { id: blockId } }),
+            include: [
+              {
+                model: Building,
+                as: 'building',
+                required: true,
+                ...(buildingId && { where: { id: buildingId } })
+              }
+            ]
+          }
+        ]
       }
     ];
+
+    // ✅ Sắp xếp
+    let order = [['createdAt', 'DESC'], ['id', 'ASC']];
     
-    const result = await Apartment.findAndCountAll({ 
-      where, 
+    switch (sortBy) {
+      case 'price_asc':
+        order = [['monthlyRent', 'ASC'], ['id', 'ASC']];
+        break;
+      
+      case 'price_desc':
+        order = [['monthlyRent', 'DESC'], ['id', 'ASC']];
+        break;
+      
+      case 'newest':
+        order = [['createdAt', 'DESC'], ['id', 'ASC']];
+        break;
+      
+      case 'view_desc':
+        order = [['viewCount', 'DESC'], ['id', 'ASC']];
+        break;
+      
+      default:
+        order = [['createdAt', 'DESC'], ['id', 'ASC']];
+    }
+
+    const result = await Apartment.findAndCountAll({
+      where,
       include,
-      limit: parseInt(pageSize), 
-      offset: parseInt(offset), 
-      order: [['monthlyRent', 'ASC'], ['number', 'ASC']]
+      offset: parseInt(offset),
+      limit: parseInt(limit),
+      order,
+      distinct: true // ✅ CRITICAL for correct count with joins
     });
-    
-    res.json({ 
-      success: true, 
-      data: result.rows, 
-      total: result.count, 
-      page: parseInt(page), 
-      pages: Math.ceil(result.count / pageSize) 
+
+    res.json({
+      success: true,
+      data: result.rows,
+      pagination: {
+        page: parseInt(page),
+        pageSize: parseInt(limit),
+        totalItems: result.count,
+        totalPages: Math.ceil(result.count / limit)
+      }
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });

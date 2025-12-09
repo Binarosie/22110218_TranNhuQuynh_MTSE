@@ -65,10 +65,10 @@ const seedDatabase = async () => {
         // Create Users for apartment rental system
         const users = await User.bulkCreate([
             {
-                firstName: 'Admin',
-                lastName: 'System',
+                firstName: 'Nguyễn',
+                lastName: 'Văn An',
                 email: 'admin@building.com',
-                password: 'admin123',
+                password: 'password123',
                 phone: '+84901000001',
                 address: '268 Lý Thường Kiệt, Quận 10, TP.HCM',
                 dateOfBirth: '1985-01-01',
@@ -78,10 +78,10 @@ const seedDatabase = async () => {
                 hasRentedApartment: false
             },
             {
-                firstName: 'Nguyễn',
-                lastName: 'Văn Điện',
+                firstName: 'Trần',
+                lastName: 'Văn Bình',
                 email: 'electrician@building.com',
-                password: 'tech123',
+                password: 'password123',
                 phone: '+84901000002',
                 address: '268 Lý Thường Kiệt, Quận 10, TP.HCM',
                 dateOfBirth: '1990-05-15',
@@ -91,10 +91,10 @@ const seedDatabase = async () => {
                 hasRentedApartment: false
             },
             {
-                firstName: 'Trần',
-                lastName: 'Văn Nước',
+                firstName: 'Lê',
+                lastName: 'Văn Cường',
                 email: 'plumber@building.com',
-                password: 'tech123',
+                password: 'password123',
                 phone: '+84901000003',
                 address: '268 Lý Thường Kiệt, Quận 10, TP.HCM',
                 dateOfBirth: '1988-08-20',
@@ -104,10 +104,10 @@ const seedDatabase = async () => {
                 hasRentedApartment: false
             },
             {
-                firstName: 'Lê',
-                lastName: 'Văn Dân',
+                firstName: 'Phạm',
+                lastName: 'Thị Dung',
                 email: 'tenant1@gmail.com',
-                password: 'tenant123',
+                password: 'password123',
                 phone: '+84901000004',
                 address: 'Căn 0101 - Block S.01',
                 dateOfBirth: '1990-12-10',
@@ -117,10 +117,10 @@ const seedDatabase = async () => {
                 hasRentedApartment: true // Đã thuê căn hộ
             },
             {
-                firstName: 'Huỳnh',
-                lastName: 'Thành Duy',
-                email: 'student@gmail.com',
-                password: 'student123',
+                firstName: 'Võ',
+                lastName: 'Minh Em',
+                email: 'tenant2@gmail.com',
+                password: 'password123',
                 phone: '+84901000005',
                 address: 'Căn 0102 - Block S.01',
                 dateOfBirth: '1995-03-25',
@@ -130,10 +130,10 @@ const seedDatabase = async () => {
                 hasRentedApartment: true // Đã thuê căn hộ
             },
             {
-                firstName: 'Phạm',
-                lastName: 'Thu Hà',
+                firstName: 'Hoàng',
+                lastName: 'Văn Phúc',
                 email: 'user@gmail.com',
-                password: 'user123',
+                password: 'password123',
                 phone: '+84901000006',
                 address: 'Chưa có địa chỉ',
                 dateOfBirth: '1992-07-30',
@@ -165,19 +165,20 @@ const seedDatabase = async () => {
             blocks.push(b);
         }
 
-        // Create floors for the first block (sample)
-        const floors = [];
-        const firstBlock = blocks[0];
-        for (let f = 1; f <= 20; f++) {
-            const floor = await Floor.create({ number: f, blockId: firstBlock.id });
-            floors.push(floor);
-        }
-
-        // Create apartments for floors 1-3 (8 apartments per floor) as sample data
+        // Create floors and apartments for blocks
         const apartments = [];
-        for (let floorIndex = 0; floorIndex < 3; floorIndex++) {
-            const floor = floors[floorIndex];
-            for (let aptNumber = 1; aptNumber <= 8; aptNumber++) {
+        
+        // Block 1 (S.01): 25 apartments across 5 floors (5 apartments per floor)
+        const firstBlock = blocks[0];
+        const floorsBlock1 = [];
+        for (let f = 1; f <= 5; f++) {
+            const floor = await Floor.create({ number: f, blockId: firstBlock.id });
+            floorsBlock1.push(floor);
+        }
+        
+        for (let floorIndex = 0; floorIndex < 5; floorIndex++) {
+            const floor = floorsBlock1[floorIndex];
+            for (let aptNumber = 1; aptNumber <= 5; aptNumber++) {
                 const aptNumStr = `${(floorIndex + 1).toString().padStart(2, '0')}${aptNumber.toString().padStart(2, '0')}`;
                 
                 // Assign tenants to specific apartments
@@ -190,7 +191,7 @@ const seedDatabase = async () => {
                     leaseStart = new Date('2024-01-01');
                     leaseEnd = new Date('2025-12-31');
                 } else if (aptNumStr === '0102') {
-                    tenantId = users.find(u => u.email === 'student@gmail.com').id;
+                    tenantId = users.find(u => u.email === 'tenant2@gmail.com').id;
                     leaseStart = new Date('2024-06-01');
                     leaseEnd = new Date('2025-05-31');
                 }
@@ -198,12 +199,39 @@ const seedDatabase = async () => {
                 const apt = await Apartment.create({ 
                     number: aptNumStr, 
                     floorId: floor.id, 
-                    area: 60 + floorIndex * 1.5, 
+                    area: 60 + floorIndex * 2 + aptNumber * 0.5,
                     status: tenantId ? 'occupied' : 'vacant',
                     tenantId: tenantId,
-                    monthlyRent: 8000000 + floorIndex * 500000, // VND
+                    monthlyRent: 8000000 + floorIndex * 300000 + aptNumber * 100000, // VND
                     leaseStartDate: leaseStart,
                     leaseEndDate: leaseEnd
+                });
+                apartments.push(apt);
+            }
+        }
+        
+        // Block 2 (S.02): 10 apartments across 2 floors (5 apartments per floor)
+        const secondBlock = blocks[1];
+        const floorsBlock2 = [];
+        for (let f = 1; f <= 2; f++) {
+            const floor = await Floor.create({ number: f, blockId: secondBlock.id });
+            floorsBlock2.push(floor);
+        }
+        
+        for (let floorIndex = 0; floorIndex < 2; floorIndex++) {
+            const floor = floorsBlock2[floorIndex];
+            for (let aptNumber = 1; aptNumber <= 5; aptNumber++) {
+                const aptNumStr = `${(floorIndex + 1).toString().padStart(2, '0')}${aptNumber.toString().padStart(2, '0')}`;
+                
+                const apt = await Apartment.create({ 
+                    number: aptNumStr, 
+                    floorId: floor.id, 
+                    area: 55 + floorIndex * 2 + aptNumber * 0.5,
+                    status: 'vacant',
+                    tenantId: null,
+                    monthlyRent: 7500000 + floorIndex * 300000 + aptNumber * 100000, // VND
+                    leaseStartDate: null,
+                    leaseEndDate: null
                 });
                 apartments.push(apt);
             }
@@ -225,17 +253,18 @@ const seedDatabase = async () => {
         console.log(`- ${users.length} users created`);
         console.log(`- 1 building complex created`);
         console.log(`- ${blocks.length} blocks created`);
-        console.log(`- ${floors.length} floors created for first block`);
-        console.log(`- ${apartments.length} apartments created with tenant assignments`);
+        console.log(`- Block 1 (S.01): 5 floors with 25 apartments`);
+        console.log(`- Block 2 (S.02): 2 floors with 10 apartments`);
+        console.log(`- Total: ${apartments.length} apartments created with tenant assignments`);
         console.log(`- ${facilities.length} facilities created for maintenance`);
 
-        console.log('\nTest Credentials:');
-        console.log('Admin: admin@building.com / admin123');
-        console.log('Thợ điện: electrician@building.com / tech123');
-        console.log('Thợ nước: plumber@building.com / tech123');
-        console.log('Tenant 1 (có thuê): tenant1@gmail.com / tenant123');
-        console.log('Tenant 2 (có thuê): student@gmail.com / student123');
-        console.log('User (chưa thuê): user@gmail.com / user123');
+        console.log('\nTest Credentials (password: password123):');
+        console.log('Admin: admin@building.com');
+        console.log('Thợ điện: electrician@building.com');
+        console.log('Thợ nước: plumber@building.com');
+        console.log('Tenant 1 (có thuê): tenant1@gmail.com');
+        console.log('Tenant 2 (có thuê): tenant2@gmail.com');
+        console.log('User (chưa thuê): user@gmail.com');
 
         process.exit(0);
     } catch (error) {
