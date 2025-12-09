@@ -119,6 +119,13 @@ const createBooking = async (req, res) => {
             status: 'TODO' // Default status
         });
 
+        // Create announcement for admin (Step 1: New booking created)
+        await Announcement.create({
+            title: `Booking mới #${booking.id} cần xử lý`,
+            content: `User ${req.user.firstName} ${req.user.lastName} đã đặt lịch sửa chữa ${facility.name}. Vui lòng phân công kỹ thuật viên.`,
+            publishedAt: new Date()
+        });
+
         const bookingWithDetails = await FacilityBooking.findByPk(booking.id, {
             include: [
                 { model: Facility, as: 'facility' },
@@ -471,6 +478,28 @@ const getBookingStats = async (req, res) => {
     }
 };
 
+// Get facility statistics
+const getFacilityStats = async (req, res) => {
+    try {
+        const total = await Facility.count();
+        const needFix = await FacilityBooking.count({
+            where: {
+                status: { [Op.in]: ['TODO', 'PENDING', 'FIXED'] }
+            }
+        });
+
+        res.json({
+            success: true,
+            data: {
+                total,
+                needFix
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 module.exports = {
     // Facility CRUD
     createFacility,
@@ -485,5 +514,7 @@ module.exports = {
     markAsDone,         // User: FIXED → DONE
     listBookings,
     getBookingById,
-    getBookingStats
+    getBookingStats,
+    // Facility Stats
+    getFacilityStats
 };

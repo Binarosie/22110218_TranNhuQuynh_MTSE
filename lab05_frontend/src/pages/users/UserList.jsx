@@ -24,11 +24,51 @@ const UserList = () => {
     const [positionFilter, setPositionFilter] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
 
-    // Fetch data
+    // Fetch roles and positions once on mount
     useEffect(() => {
-        fetchUsers();
         fetchRoles();
         fetchPositions();
+    }, []);
+
+    // Fetch users when filters change
+    useEffect(() => {
+        let cancelled = false;
+
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                const params = {
+                    page: pagination.currentPage,
+                    limit: pagination.itemsPerPage,
+                    search: search.trim() || undefined,
+                    roleId: roleFilter || undefined,
+                    positionId: positionFilter || undefined,
+                    isActive: statusFilter !== '' ? statusFilter : undefined,
+                };
+
+                console.log('🔍 API Request:', { page: pagination.currentPage, totalPages: pagination.totalPages });
+
+                const response = await userAPI.getUsers(params);
+                if (!cancelled && response.data.success) {
+                    setUsers(response.data.data.users);
+                    setPagination(prev => ({
+                        ...prev,
+                        ...response.data.data.pagination
+                    }));
+                }
+            } catch (error) {
+                if (!cancelled) {
+                    console.error('Error fetching users:', error);
+                    toast.error('Failed to fetch users');
+                }
+            } finally {
+                if (!cancelled) setLoading(false);
+            }
+        };
+
+        fetchData();
+
+        return () => { cancelled = true; };
     }, [pagination.currentPage, search, roleFilter, positionFilter, statusFilter]);
 
     const fetchUsers = async () => {
@@ -46,10 +86,10 @@ const UserList = () => {
             const response = await userAPI.getUsers(params);
             if (response.data.success) {
                 setUsers(response.data.data.users);
-                setPagination({
-                    ...pagination,
+                setPagination(prev => ({
+                    ...prev,
                     ...response.data.data.pagination
-                });
+                }));
             }
         } catch (error) {
             console.error('Error fetching users:', error);
@@ -109,10 +149,16 @@ const UserList = () => {
         }
     };
 
+    const handlePageChange = (page) => {
+        setPagination(prev => ({
+            ...prev,
+            currentPage: page
+        }));
+    };
+
     const handleSearch = (e) => {
         e.preventDefault();
-        setPagination({ ...pagination, currentPage: 1 });
-        fetchUsers();
+        setPagination(prev => ({ ...prev, currentPage: 1 }));
     };
 
     const clearFilters = () => {
@@ -120,8 +166,39 @@ const UserList = () => {
         setRoleFilter('');
         setPositionFilter('');
         setStatusFilter('');
-        setPagination({ ...pagination, currentPage: 1 });
+        setPagination(prev => ({ ...prev, currentPage: 1 }));
     };
+
+    // 🔧 Debug helper - expose to window for console testing
+    useEffect(() => {
+        window.__pagination__ = {
+            get state() {
+                return pagination;
+            },
+            goToPage: (page) => {
+                setPagination(prev => ({
+                    ...prev,
+                    currentPage: page,
+                }));
+            },
+            nextPage: () => {
+                setPagination(prev => ({
+                    ...prev,
+                    currentPage: prev.currentPage + 1,
+                }));
+            },
+            prevPage: () => {
+                setPagination(prev => ({
+                    ...prev,
+                    currentPage: prev.currentPage - 1,
+                }));
+            },
+        };
+
+        return () => {
+            delete window.__pagination__;
+        };
+    }, [pagination, setPagination]);
 
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -383,14 +460,14 @@ const UserList = () => {
                                 <div className="mt-6 flex items-center justify-between">
                                     <div className="flex-1 flex justify-between sm:hidden">
                                         <button
-                                            onClick={() => setPagination({ ...pagination, currentPage: pagination.currentPage - 1 })}
+                                            onClick={() => handlePageChange(pagination.currentPage - 1)}
                                             disabled={pagination.currentPage <= 1}
                                             className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             Previous
                                         </button>
                                         <button
-                                            onClick={() => setPagination({ ...pagination, currentPage: pagination.currentPage + 1 })}
+                                            onClick={() => handlePageChange(pagination.currentPage + 1)}
                                             disabled={pagination.currentPage >= pagination.totalPages}
                                             className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
@@ -414,7 +491,7 @@ const UserList = () => {
                                         <div>
                                             <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
                                                 <button
-                                                    onClick={() => setPagination({ ...pagination, currentPage: pagination.currentPage - 1 })}
+                                                    onClick={() => handlePageChange(pagination.currentPage - 1)}
                                                     disabled={pagination.currentPage <= 1}
                                                     className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                                                 >
@@ -425,7 +502,7 @@ const UserList = () => {
                                                     return (
                                                         <button
                                                             key={page}
-                                                            onClick={() => setPagination({ ...pagination, currentPage: page })}
+                                                            onClick={() => handlePageChange(page)}
                                                             className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${page === pagination.currentPage
                                                                     ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
                                                                     : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
@@ -436,7 +513,7 @@ const UserList = () => {
                                                     );
                                                 })}
                                                 <button
-                                                    onClick={() => setPagination({ ...pagination, currentPage: pagination.currentPage + 1 })}
+                                                    onClick={() => handlePageChange(pagination.currentPage + 1)}
                                                     disabled={pagination.currentPage >= pagination.totalPages}
                                                     className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                                                 >

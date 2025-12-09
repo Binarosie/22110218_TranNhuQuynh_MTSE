@@ -416,6 +416,34 @@ const getPositions = async (req, res) => {
     }
 };
 
+// Get list of technicians (for assignment dropdown)
+const listTechnicians = async (req, res) => {
+    try {
+        const technicians = await User.findAll({
+            include: [{
+                model: Role,
+                as: 'role',
+                where: { name: 'Technician' }
+            }],
+            where: { isActive: true },
+            attributes: ['id', 'firstName', 'lastName', 'email', 'phone'],
+            order: [['firstName', 'ASC']]
+        });
+
+        res.json({
+            success: true,
+            data: technicians
+        });
+    } catch (error) {
+        console.error('Get technicians error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch technicians',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     getAllUsers,
     getUserById,
@@ -424,5 +452,6 @@ module.exports = {
     deleteUser,
     toggleUserStatus,
     getRoles,
-    getPositions
+    getPositions,
+    listTechnicians
 };

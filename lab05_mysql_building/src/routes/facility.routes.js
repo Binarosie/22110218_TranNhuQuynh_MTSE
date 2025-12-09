@@ -12,7 +12,8 @@ const {
     markAsDone,
     listBookings,
     getBookingById,
-    getBookingStats
+    getBookingStats,
+    getFacilityStats
 } = require('../controllers/facility.controller');
 const { authMiddleware, adminMiddleware, technicianMiddleware, userMiddleware } = require('../middleware/auth');
 
@@ -21,6 +22,9 @@ router.get('/', listFacilities);
 
 // Protected routes
 router.use(authMiddleware);
+
+// ==================== FACILITY STATS ====================
+router.get('/stats', getFacilityStats);
 
 // ==================== BOOKING WORKFLOW ====================
 
