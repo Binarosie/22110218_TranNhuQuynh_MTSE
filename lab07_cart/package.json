@@ -1,0 +1,56 @@
+{
+  "name": "@yourname/lab07-cart",
+  "version": "1.0.0",
+  "description": "Building Management Cart UI Library - Apartment rental and purchase cart components for React",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "react",
+    "cart",
+    "apartment",
+    "building-management",
+    "rental",
+    "purchase",
+    "ui-library",
+    "graphql",
+    "rest-api"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/lab07-cart"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/lab07-cart/issues"
+  },
+  "homepage": "https://github.com/yourusername/lab07-cart#readme",
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.0",
+    "@babel/preset-env": "^7.23.0",
+    "@babel/preset-react": "^7.22.0",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "postcss": "^8.4.31",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "rollup": "^4.9.0",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "rollup-plugin-postcss": "^4.0.2"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "prepublishOnly": "npm run build",
+    "watch": "rollup -c -w"
+  }
+}

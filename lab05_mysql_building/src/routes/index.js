@@ -9,6 +9,7 @@ const facilityRoutes = require('./facility.routes');
 const apartmentRoutes = require('./apartment.routes');
 const floorRoutes = require('./floor.routes');
 const rentalRoutes = require('./rental.routes');
+const cartRoutes = require('./cart.routes');
 
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
@@ -18,6 +19,7 @@ router.use('/facilities', facilityRoutes);
 router.use('/apartments', apartmentRoutes);
 router.use('/floors', floorRoutes);
 router.use('/rental', rentalRoutes);
+router.use('/cart', cartRoutes);
 
 router.get('/', (req, res) => res.json({ message: 'API root' }));
 

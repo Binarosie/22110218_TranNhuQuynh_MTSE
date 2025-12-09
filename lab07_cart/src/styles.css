@@ -1,0 +1,839 @@
+/**
+ * Lab07 Cart - Building Management UI Library Styles
+ * Prefix: bm-* (Building Management)
+ * Compatible with Tailwind CSS
+ */
+
+/* ===== RESET & BASE ===== */
+* {
+  box-sizing: border-box;
+}
+
+/* ===== BUTTON COMPONENT ===== */
+.bm-button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.bm-button--primary {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.bm-button--primary:hover:not(:disabled) {
+  background-color: #2563eb;
+}
+
+.bm-button--secondary {
+  background-color: #6b7280;
+  color: white;
+}
+
+.bm-button--secondary:hover:not(:disabled) {
+  background-color: #4b5563;
+}
+
+.bm-button--danger {
+  background-color: #ef4444;
+  color: white;
+}
+
+.bm-button--danger:hover:not(:disabled) {
+  background-color: #dc2626;
+}
+
+.bm-button--ghost {
+  background-color: transparent;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+}
+
+.bm-button--ghost:hover:not(:disabled) {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.bm-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.bm-button__spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: bm-spin 0.6s linear infinite;
+}
+
+@keyframes bm-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===== INPUT COMPONENT ===== */
+.bm-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.bm-input-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.bm-input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.bm-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.bm-input--error {
+  border-color: #ef4444;
+}
+
+.bm-input--error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.bm-input--disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.bm-input-error {
+  font-size: 0.75rem;
+  color: #ef4444;
+  margin-top: 0.25rem;
+}
+
+/* ===== CARD COMPONENT ===== */
+.bm-card {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.bm-card__header {
+  padding: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bm-card__title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.bm-card__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.bm-card__body {
+  padding: 1rem;
+}
+
+.bm-card__footer {
+  padding: 1rem;
+  border-top: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+
+/* ===== MODAL COMPONENT ===== */
+.bm-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.bm-modal {
+  background-color: white;
+  border-radius: 0.5rem;
+  max-width: 32rem;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.bm-modal__header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bm-modal__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.bm-modal__close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  color: #6b7280;
+  font-size: 1.5rem;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.bm-modal__close:hover {
+  color: #374151;
+}
+
+.bm-modal__body {
+  padding: 1.5rem;
+}
+
+/* ===== CART ITEM CARD ===== */
+.bm-cart-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  background-color: white;
+}
+
+.bm-cart-item__checkbox {
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+.bm-cart-item__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.bm-cart-item__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.bm-cart-item__title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.bm-cart-item__code {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.bm-cart-item__remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ef4444;
+  font-size: 1.25rem;
+  padding: 0.25rem;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.bm-cart-item__remove:hover {
+  color: #dc2626;
+}
+
+.bm-cart-item__details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.bm-cart-item__detail {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.bm-location-path {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.bm-location-badge {
+  padding: 0.25rem 0.5rem;
+  background-color: #f3f4f6;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.bm-location-separator {
+  color: #9ca3af;
+}
+
+.bm-amenities-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.bm-amenity-tag {
+  padding: 0.25rem 0.5rem;
+  background-color: #dbeafe;
+  color: #1e40af;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.bm-cart-item__financials {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background-color: #f9fafb;
+  border-radius: 0.375rem;
+}
+
+.bm-financial-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+}
+
+.bm-financial-row--total {
+  font-weight: 600;
+  color: #111827;
+  font-size: 1rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* ===== CART SUMMARY ===== */
+.bm-cart-summary {
+  position: sticky;
+  top: 1rem;
+}
+
+.bm-cart-summary__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.bm-cart-summary__select-all {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+.bm-cart-summary__totals {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.bm-cart-summary__checkout {
+  margin-top: 1rem;
+  width: 100%;
+}
+
+/* ===== APARTMENT DETAIL CARD ===== */
+.bm-apartment-detail {
+  max-width: 48rem;
+  margin: 0 auto;
+}
+
+.bm-apartment-detail__content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.bm-apartment-detail__images {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 0.5rem;
+}
+
+.bm-apartment-detail__main-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bm-apartment-detail__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.bm-apartment-detail__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 0.25rem;
+}
+
+.bm-apartment-detail__code {
+  font-size: 1rem;
+  color: #6b7280;
+}
+
+.bm-badge {
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.bm-badge--for_rent {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.bm-badge--for_sale {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.bm-apartment-detail__location,
+.bm-apartment-detail__specs,
+.bm-apartment-detail__amenities,
+.bm-apartment-detail__description,
+.bm-apartment-detail__mode-selection,
+.bm-apartment-detail__financial {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.bm-apartment-detail__location h4,
+.bm-apartment-detail__specs h4,
+.bm-apartment-detail__amenities h4,
+.bm-apartment-detail__description h4,
+.bm-apartment-detail__mode-selection h4,
+.bm-apartment-detail__financial h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.bm-specs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.bm-spec-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background-color: #f9fafb;
+  border-radius: 0.375rem;
+}
+
+.bm-spec-icon {
+  font-size: 1.5rem;
+}
+
+.bm-spec-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.bm-spec-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.bm-mode-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.bm-mode-btn {
+  padding: 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.5rem;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bm-mode-btn:hover {
+  border-color: #3b82f6;
+}
+
+.bm-mode-btn--active {
+  border-color: #3b82f6;
+  background-color: #eff6ff;
+}
+
+.bm-mode-btn__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bm-mode-btn__title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.bm-mode-btn__price {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #3b82f6;
+}
+
+.bm-financial-summary {
+  padding: 1rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+}
+
+.bm-financial-divider {
+  height: 1px;
+  background-color: #e5e7eb;
+  margin: 0.5rem 0;
+}
+
+.bm-financial-total {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #3b82f6;
+}
+
+.bm-apartment-detail__add-btn {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+}
+
+/* ===== LEASE TERM SELECTOR ===== */
+.bm-lease-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+}
+
+.bm-lease-selector__title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.bm-lease-selector__content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.bm-lease-selector__slider-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bm-lease-slider {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: #e5e7eb;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.bm-lease-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bm-lease-slider::-webkit-slider-thumb:hover {
+  background: #2563eb;
+  transform: scale(1.1);
+}
+
+.bm-lease-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.bm-lease-slider::-moz-range-thumb:hover {
+  background: #2563eb;
+  transform: scale(1.1);
+}
+
+.bm-lease-selector__markers {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.bm-lease-selector__display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bm-lease-value {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.bm-lease-value__number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.bm-lease-value__unit {
+  font-size: 1rem;
+  color: #6b7280;
+}
+
+.bm-lease-cost {
+  text-align: right;
+}
+
+.bm-lease-cost__label {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.bm-lease-cost__amount {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #3b82f6;
+}
+
+.bm-lease-selector__quick-picks {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.bm-quick-pick {
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background-color: white;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.bm-quick-pick:hover {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.bm-quick-pick--active {
+  border-color: #3b82f6;
+  background-color: #3b82f6;
+  color: white;
+}
+
+/* ===== PAYMENT BREAKDOWN ===== */
+.bm-payment-breakdown__content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.bm-payment-breakdown__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.bm-breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.bm-breakdown-row--info {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.bm-breakdown-row--subtotal {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #111827;
+}
+
+.bm-breakdown-row--tax,
+.bm-breakdown-row--discount {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.bm-breakdown-row--total {
+  padding: 1rem 0;
+}
+
+.bm-breakdown-value {
+  font-weight: 500;
+}
+
+.bm-breakdown-value--positive {
+  color: #ef4444;
+}
+
+.bm-breakdown-value--negative {
+  color: #10b981;
+}
+
+.bm-breakdown-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bm-breakdown-section__title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.25rem;
+}
+
+.bm-breakdown-divider {
+  height: 1px;
+  background-color: #e5e7eb;
+  margin: 0.5rem 0;
+}
+
+.bm-breakdown-divider--thick {
+  height: 2px;
+  margin: 1rem 0;
+}
+
+.bm-breakdown-total-label {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.bm-breakdown-total-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #3b82f6;
+}
+
+.bm-breakdown-note {
+  padding: 0.75rem;
+  background-color: #fef3c7;
+  border-left: 3px solid #f59e0b;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  color: #78350f;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .bm-cart-item {
+    flex-direction: column;
+  }
+
+  .bm-specs-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bm-mode-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .bm-lease-selector__display {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .bm-lease-cost {
+    text-align: left;
+  }
+}
+
+/* ===== UTILITIES ===== */
+.bm-text-muted {
+  color: #6b7280;
+}
+
+.bm-text-danger {
+  color: #ef4444;
+}
+
+.bm-text-success {
+  color: #10b981;
+}
+
+.bm-text-primary {
+  color: #3b82f6;
+}

@@ -19,3 +19,5 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         />
     </React.StrictMode>,
 )
+
+// Note: CartProvider is now included in App.jsx to wrap authenticated routes

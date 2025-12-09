@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@yourname/lab07-cart": "file:../lab07_cart",
     "axios": "^1.13.2",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.554.0",

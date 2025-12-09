@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { ApartmentDetailCard } from '@yourname/lab07-cart';
+import { useCartContext } from '../../contexts/CartContext';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Loading from '../../components/common/Loading';
@@ -18,11 +20,13 @@ const ApartmentDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const cart = useCartContext();
   const [apartment, setApartment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [rentLoading, setRentLoading] = useState(false);
   const [rentModal, setRentModal] = useState(false);
+  const [showCartView, setShowCartView] = useState(false);
 
   useEffect(() => {
     fetchApartment();
@@ -54,6 +58,22 @@ const ApartmentDetail = () => {
     }
   };
 
+  const handleAddToCart = async (cartItem) => {
+    console.log('🚀 handleAddToCart called!');
+    console.log('📦 Cart item:', cartItem);
+    console.log('💰 Price:', cartItem.price);
+    
+    const success = await cart.addItem(cartItem);
+    console.log('✅ Add result:', success);
+    console.log('❌ Cart error:', cart.error);
+    
+    if (success) {
+      alert('Đã thêm vào giỏ hàng!');
+    } else if (cart.error) {
+      alert(cart.error);
+    }
+  };
+
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -79,18 +99,42 @@ const ApartmentDetail = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Căn hộ #{apartment.id}</h1>
-          <p className="mt-1 text-gray-600">
-            {apartment.floor?.block?.building?.name} - {apartment.floor?.block?.name} - Tầng {apartment.floor?.number ?? 'N/A'}
-          </p>
-        </div>
-        <Button variant="secondary" onClick={() => navigate(-1)}>
-          ← Quay lại
+      {/* Toggle View Buttons */}
+      <div className="flex gap-4">
+        <Button 
+          variant={!showCartView ? "primary" : "secondary"}
+          onClick={() => setShowCartView(false)}
+        >
+          Chi tiết mặc định
+        </Button>
+        <Button 
+          variant={showCartView ? "primary" : "secondary"}
+          onClick={() => setShowCartView(true)}
+        >
+          Xem với Cart UI (Lab07)
         </Button>
       </div>
+
+      {/* Show Cart UI View */}
+      {showCartView ? (
+        <ApartmentDetailCard
+          apartment={apartment}
+          onAddToCart={handleAddToCart}
+        />
+      ) : (
+        <>
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Căn hộ #{apartment.id}</h1>
+              <p className="mt-1 text-gray-600">
+                {apartment.floor?.block?.building?.name} - {apartment.floor?.block?.name} - Tầng {apartment.floor?.number ?? 'N/A'}
+              </p>
+            </div>
+            <Button variant="secondary" onClick={() => navigate(-1)}>
+              ← Quay lại
+            </Button>
+          </div>
 
       {/* Main Info */}
       <Card title="Thông tin chi tiết">
@@ -184,6 +228,8 @@ const ApartmentDetail = () => {
           </div>
         )}
       </Card>
+        </>
+      )}
 
       {/* Rent Confirmation Modal */}
       <Modal

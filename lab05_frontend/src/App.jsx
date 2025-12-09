@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'react-hot-toast';
 
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { CartProvider } from './contexts/CartContext';
 import Navbar from './components/layout/Navbar';
 import Sidebar from './components/layout/Sidebar';
 import Footer from './components/layout/Footer';
@@ -25,6 +26,7 @@ import ApartmentDetail from './pages/apartments/ApartmentDetail';
 import MyApartments from './pages/apartments/MyApartments';
 import ApartmentManagement from './pages/apartments/ApartmentManagement';
 import CreateApartment from './pages/apartments/CreateApartment';
+import Cart from './pages/apartments/Cart';
 
 // Booking pages
 import MyBookings from './pages/bookings/MyBookings';
@@ -91,9 +93,10 @@ const AppLayout = ({ children }) => {
 function App() {
     return (
         <AuthProvider>
-            <Router>
-                <AppLayout>
-                    <Routes>
+            <CartProvider>
+                <Router>
+                    <AppLayout>
+                        <Routes>
                         {/* ---------- PUBLIC ---------- */}
                         <Route
                             path="/login"
@@ -135,6 +138,16 @@ function App() {
                         {/* ---------- PUBLIC BROWSE ---------- */}
                         <Route path="/browse" element={<ApartmentBrowse />} />
                         <Route path="/apartments/:id" element={<ApartmentDetail />} />
+
+                        {/* ---------- CART ---------- */}
+                        <Route
+                            path="/cart"
+                            element={
+                                <ProtectedRoute>
+                                    <Cart />
+                                </ProtectedRoute>
+                            }
+                        />
 
                         {/* ---------- USER ROUTES ---------- */}
                         <Route
@@ -334,6 +347,7 @@ function App() {
                     />
                 </AppLayout>
             </Router>
+            </CartProvider>
         </AuthProvider>
     );
 }
