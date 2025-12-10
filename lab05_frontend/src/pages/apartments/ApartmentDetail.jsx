@@ -11,6 +11,7 @@ import apartmentService from '../../services/apartmentService';
 import rentalService from '../../services/rentalService';
 import { APARTMENT_STATUS_LABELS, APARTMENT_STATUS_COLORS } from '../../utils/constants';
 import { useAuth } from '../../contexts/AuthContext';
+import toast from 'react-hot-toast';
 
 /**
  * ApartmentDetail Page
@@ -21,6 +22,14 @@ const ApartmentDetail = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const cart = useCartContext();
+  
+  // DEBUG: Log cart context
+  console.log('🛒 Cart context in ApartmentDetail:', cart);
+  console.log('👤 User:', user);
+  console.log('🔑 Cart enabled:', cart?.enabled);
+  console.log('📋 Cart items:', cart?.items);
+  console.log('➕ Cart addItem:', typeof cart?.addItem);
+  
   const [apartment, setApartment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -29,15 +38,33 @@ const ApartmentDetail = () => {
   const [showCartView, setShowCartView] = useState(false);
 
   useEffect(() => {
-    fetchApartment();
-  }, [id]);
+    let mounted = true;
+
+    const loadApartment = async () => {
+      if (!mounted) return;
+      await fetchApartment();
+    };
+
+    loadApartment();
+
+    return () => {
+      mounted = false;
+    };
+  }, [id]); // Only refetch when apartment ID changes
 
   const fetchApartment = async () => {
     try {
       setLoading(true);
       setError(null);
       const response = await apartmentService.getApartmentById(id);
-      setApartment(response.data.data); // Unwrap: response.data = { success, data: apartment }
+      const data = response.data.data;
+      
+      console.log('🏠 Apartment data:', JSON.stringify(data, null, 2));
+      console.log('📍 Floor:', data?.floor ? JSON.stringify(data.floor, null, 2) : 'NULL');
+      console.log('🏢 Block:', data?.floor?.block ? JSON.stringify(data.floor.block, null, 2) : 'NULL');
+      console.log('🏗️ Building:', data?.floor?.block?.building ? JSON.stringify(data.floor.block.building, null, 2) : 'NULL');
+      
+      setApartment(data);
     } catch (err) {
       setError(err);
     } finally {
@@ -63,14 +90,25 @@ const ApartmentDetail = () => {
     console.log('📦 Cart item:', cartItem);
     console.log('💰 Price:', cartItem.price);
     
-    const success = await cart.addItem(cartItem);
-    console.log('✅ Add result:', success);
-    console.log('❌ Cart error:', cart.error);
-    
-    if (success) {
-      alert('Đã thêm vào giỏ hàng!');
-    } else if (cart.error) {
-      alert(cart.error);
+    try {
+      const success = await cart.addItem(cartItem);
+      console.log('✅ Add result:', success);
+      
+      if (success) {
+        toast.success('🎉 Đã thêm vào giỏ hàng thành công!');
+      } else if (cart.error) {
+        // Show backend error message
+        const errorMessage = cart.error.includes('đã được thuê') || 
+                           cart.error.includes('bảo trì') ||
+                           cart.error.includes('đã có trong giỏ hàng')
+          ? cart.error
+          : 'Có lỗi xảy ra khi thêm vào giỏ hàng';
+        toast.error(errorMessage);
+      }
+    } catch (err) {
+      console.error('❌ Add to cart error:', err);
+      const errorMessage = err?.message || 'Có lỗi xảy ra khi thêm vào giỏ hàng';
+      toast.error(errorMessage);
     }
   };
 
@@ -128,7 +166,17 @@ const ApartmentDetail = () => {
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Căn hộ #{apartment.id}</h1>
               <p className="mt-1 text-gray-600">
-                {apartment.floor?.block?.building?.name} - {apartment.floor?.block?.name} - Tầng {apartment.floor?.number ?? 'N/A'}
+                {apartment.floor?.block?.building?.name && apartment.floor?.block?.name ? (
+                  <>
+                    {apartment.floor.block.building.name}
+                    {' → '}
+                    {apartment.floor.block.name}
+                    {' → '}
+                    Tầng {apartment.floor.number ?? 'N/A'}
+                  </>
+                ) : (
+                  <span className="text-gray-400 italic">Chưa cập nhật vị trí</span>
+                )}
               </p>
             </div>
             <Button variant="secondary" onClick={() => navigate(-1)}>

@@ -17,6 +17,7 @@ export const ApartmentDetailCard = ({
   className = "",
 }) => {
   const [months, setMonths] = useState(12);
+  const [isAddedToCart, setIsAddedToCart] = useState(false);
 
   const formatPrice = (amount) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -28,8 +29,21 @@ export const ApartmentDetailCard = ({
   const canRent = apartment.status === "vacant" || apartment.status === "occupied";
 
   const handleAddToCart = () => {
-    console.log('🔍 Apartment data:', apartment);
-    console.log('💰 monthlyRent:', apartment.monthlyRent);
+    console.log('🔍 ApartmentDetailCard - handleAddToCart called');
+    console.log('🏠 Apartment full object:', JSON.stringify(apartment, null, 2));
+    console.log('💰 monthlyRent raw value:', apartment.monthlyRent);
+    console.log('💰 monthlyRent type:', typeof apartment.monthlyRent);
+    console.log('📞 onAddToCart function:', typeof onAddToCart);
+    
+    // Ensure price is a positive number
+    const price = Number(apartment.monthlyRent);
+    if (!price || price <= 0) {
+      console.error('❌ Invalid monthlyRent:', apartment.monthlyRent);
+      if (onAddToCart) {
+        // Call with error to show proper error message
+        return;
+      }
+    }
     
     const cartItem = {
       apartmentId: apartment.id,
@@ -37,15 +51,15 @@ export const ApartmentDetailCard = ({
       title: `Apartment ${apartment.number}`,
       type: "apartment",
       area: apartment.area,
-      price: apartment.monthlyRent || 0,
+      price: price,
       mode: "rent",
       months: months,
       status: apartment.status,
 
       // Location
-      block: apartment.floor?.building?.block?.name || "N/A",
-      building: apartment.floor?.building?.name || "N/A",
-      floor: `Floor ${apartment.floor?.floorNumber || "N/A"}`,
+      block: apartment.floor?.block?.name || "N/A",
+      building: apartment.floor?.block?.building?.name || "N/A",
+      floor: `Floor ${apartment.floor?.number || "N/A"}`,
 
       // Details (default values since lab05 doesn't have these fields)
       bedrooms: 1,
@@ -58,15 +72,22 @@ export const ApartmentDetailCard = ({
 
       // Financial
       maintenanceFee: 500000, // Default maintenance fee
-      deposit: apartment.monthlyRent * 2, // 2 months deposit
+      deposit: price * 2, // 2 months deposit
 
       // Lease terms
       minLeaseTerm: 6,
       maxLeaseTerm: 36,
     };
 
-    console.log('📦 Cart item to add:', cartItem);
-    onAddToCart && onAddToCart(cartItem);
+    console.log('📦 Cart item to add:', JSON.stringify(cartItem, null, 2));
+    
+    if (onAddToCart) {
+      console.log('✅ Calling onAddToCart...');
+      onAddToCart(cartItem);
+      setIsAddedToCart(true);
+    } else {
+      console.error('❌ onAddToCart is not defined!');
+    }
   };
 
   return (
@@ -181,12 +202,16 @@ export const ApartmentDetailCard = ({
 
         {/* Add to cart button */}
         <Button
-          variant="primary"
+          variant={isAddedToCart ? "secondary" : "primary"}
           onClick={handleAddToCart}
-          disabled={!canRent || apartment.status === "occupied"}
+          disabled={apartment.status === "occupied" || isAddedToCart}
           className="bm-apartment-detail__add-btn"
         >
-          Thêm vào giỏ hàng
+          {apartment.status === "occupied" 
+            ? "Đã cho thuê" 
+            : isAddedToCart 
+            ? "✓ Đã thêm vào giỏ hàng" 
+            : "Thêm vào giỏ hàng"}
         </Button>
       </div>
     </Card>

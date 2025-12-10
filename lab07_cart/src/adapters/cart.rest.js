@@ -29,6 +29,7 @@ export const cartRestAdapter = (baseURL, getToken) => {
     const response = await fetch(url, {
       ...options,
       headers,
+      credentials: "include", // Support cookies if backend uses them
     });
 
     if (!response.ok) {

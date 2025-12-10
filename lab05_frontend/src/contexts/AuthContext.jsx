@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useMemo } from 'react';
 import Cookies from 'js-cookie';
 import { authAPI } from '../services/api';
 import toast from 'react-hot-toast';
@@ -16,9 +16,13 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const initializedRef = useRef(false);
 
-    // Check for existing token on mount
+    // Check for existing token on mount (only once)
     useEffect(() => {
+        if (initializedRef.current) return;
+        initializedRef.current = true;
+
         const initializeAuth = async () => {
             const token = Cookies.get('token');
 
@@ -229,7 +233,7 @@ export const AuthProvider = ({ children }) => {
     // Helper function to check if user is technician
     const isTechnician = () => hasRole('Technician');
 
-    const value = {
+    const value = useMemo(() => ({
         user,
         isLoading,
         login,
@@ -242,7 +246,7 @@ export const AuthProvider = ({ children }) => {
         hasRole,
         isAdmin,
         isTechnician
-    };
+    }), [user, isLoading]);
 
     return (
         <AuthContext.Provider value={value}>

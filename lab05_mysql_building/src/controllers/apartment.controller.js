@@ -1,5 +1,5 @@
 const { Apartment, Floor, Block, Building, User } = require('../models');
-const { Op, fn, col } = require('sequelize');
+const { Op, fn, col, Sequelize } = require('sequelize');
 
 const listApartments = async (req, res) => {
   try {
@@ -45,32 +45,51 @@ const listApartments = async (req, res) => {
       if (maxRent) where.monthlyRent[Op.lte] = parseFloat(maxRent);
     }
 
-    // ✅ Fuzzy search across apartment number, block name, building name
-    if (search) {
+    // ✅ Fuzzy search across apartment number, block name, building name (ACCENT + CASE INSENSITIVE)
+    if (search && search.trim() !== '') {
+      const keyword = search.trim().toLowerCase();
+      console.log('🔍 SEARCH KEYWORD:', keyword);
+
       where[Op.or] = [
-        { number: { [Op.like]: `%${search}%` } },
-        { '$floor.block.name$': { [Op.like]: `%${search}%` } },
-        { '$floor.block.building.name$': { [Op.like]: `%${search}%` } }
+        Sequelize.where(
+          Sequelize.literal(
+            "LOWER(CONVERT(`Apartment`.`number` USING utf8mb4)) COLLATE utf8mb4_general_ci"
+          ),
+          { [Op.like]: `%${keyword}%` }
+        ),
+        Sequelize.where(
+          Sequelize.literal(
+            "LOWER(CONVERT(`floor->block`.`name` USING utf8mb4)) COLLATE utf8mb4_general_ci"
+          ),
+          { [Op.like]: `%${keyword}%` }
+        ),
+        Sequelize.where(
+          Sequelize.literal(
+            "LOWER(CONVERT(`floor->block->building`.`name` USING utf8mb4)) COLLATE utf8mb4_general_ci"
+          ),
+          { [Op.like]: `%${keyword}%` }
+        )
       ];
     }
 
-    // ✅ Include with required: true for fuzzy search to work
+    // ✅ Dynamic required: only when filtering
+    const requireJoin = !!(search || blockId || buildingId);
     const include = [
       {
         model: Floor,
         as: 'floor',
-        required: true,
+        required: requireJoin,
         include: [
           {
             model: Block,
             as: 'block',
-            required: true,
+            required: requireJoin,
             ...(blockId && { where: { id: blockId } }),
             include: [
               {
                 model: Building,
                 as: 'building',
-                required: true,
+                required: requireJoin,
                 ...(buildingId && { where: { id: buildingId } })
               }
             ]
@@ -162,7 +181,21 @@ const getApartmentById = async (req, res) => {
         { 
           model: Floor, 
           as: 'floor',
-          include: [{ model: Block, as: 'block', include: [{ model: Building, as: 'building' }] }]
+          required: false,
+          include: [
+            { 
+              model: Block, 
+              as: 'block',
+              required: false,
+              include: [
+                { 
+                  model: Building, 
+                  as: 'building',
+                  required: false
+                }
+              ]
+            }
+          ]
         },
         { 
           model: User, 
@@ -205,7 +238,21 @@ const updateApartment = async (req, res) => {
         { 
           model: Floor, 
           as: 'floor',
-          include: [{ model: Block, as: 'block', include: [{ model: Building, as: 'building' }] }]
+          required: false,
+          include: [
+            { 
+              model: Block, 
+              as: 'block',
+              required: false,
+              include: [
+                { 
+                  model: Building, 
+                  as: 'building',
+                  required: false
+                }
+              ]
+            }
+          ]
         },
         { 
           model: User, 
@@ -366,54 +413,73 @@ const getVacantApartments = async (req, res) => {
     const offset = (page - 1) * limit;
     const where = {};
 
-    // ✅ ALWAYS vacant - this is the semantic meaning of this endpoint
+    //  ALWAYS vacant - this is the semantic meaning of this endpoint
     where.status = 'vacant';
 
-    // ✅ Floor filter
+    //  Floor filter
     if (floorId) {
       where.floorId = floorId;
     }
 
-    // ✅ Area range
+    //  Area range
     if (minArea || maxArea) {
       where.area = {};
       if (minArea) where.area[Op.gte] = parseFloat(minArea);
       if (maxArea) where.area[Op.lte] = parseFloat(maxArea);
     }
 
-    // ✅ Rent range
+    //  Rent range
     if (minRent || maxRent) {
       where.monthlyRent = {};
       if (minRent) where.monthlyRent[Op.gte] = parseFloat(minRent);
       if (maxRent) where.monthlyRent[Op.lte] = parseFloat(maxRent);
     }
 
-    // ✅ Fuzzy search across apartment number, block name, building name
-    if (search) {
+    //  Fuzzy search across apartment number, block name, building name (ACCENT + CASE INSENSITIVE)
+    if (search && search.trim() !== '') {
+      const keyword = search.trim().toLowerCase();
+      console.log('🔍 VACANT SEARCH KEYWORD:', keyword);
+
       where[Op.or] = [
-        { number: { [Op.like]: `%${search}%` } },
-        { '$floor.block.name$': { [Op.like]: `%${search}%` } },
-        { '$floor.block.building.name$': { [Op.like]: `%${search}%` } }
+        Sequelize.where(
+          Sequelize.literal(
+            "LOWER(CONVERT(`Apartment`.`number` USING utf8mb4)) COLLATE utf8mb4_general_ci"
+          ),
+          { [Op.like]: `%${keyword}%` }
+        ),
+        Sequelize.where(
+          Sequelize.literal(
+            "LOWER(CONVERT(`floor->block`.`name` USING utf8mb4)) COLLATE utf8mb4_general_ci"
+          ),
+          { [Op.like]: `%${keyword}%` }
+        ),
+        Sequelize.where(
+          Sequelize.literal(
+            "LOWER(CONVERT(`floor->block->building`.`name` USING utf8mb4)) COLLATE utf8mb4_general_ci"
+          ),
+          { [Op.like]: `%${keyword}%` }
+        )
       ];
     }
 
-    // ✅ Include with required: true for fuzzy search to work
+    //  Dynamic required: only when filtering
+    const requireJoin = !!(search || blockId || buildingId);
     const include = [
       {
         model: Floor,
         as: 'floor',
-        required: true,
+        required: requireJoin,
         include: [
           {
             model: Block,
             as: 'block',
-            required: true,
+            required: requireJoin,
             ...(blockId && { where: { id: blockId } }),
             include: [
               {
                 model: Building,
                 as: 'building',
-                required: true,
+                required: requireJoin,
                 ...(buildingId && { where: { id: buildingId } })
               }
             ]
@@ -422,7 +488,7 @@ const getVacantApartments = async (req, res) => {
       }
     ];
 
-    // ✅ Sắp xếp
+    //  Sắp xếp
     let order = [['createdAt', 'DESC'], ['id', 'ASC']];
     
     switch (sortBy) {

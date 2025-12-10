@@ -15,6 +15,7 @@ export const Button = ({
   disabled = false,
   className = "",
   children,
+  onClick,
   ...props
 }) => {
   const baseClass = "bm-btn";
@@ -22,10 +23,22 @@ export const Button = ({
   const loadingClass = loading ? "bm-btn--loading" : "";
   const disabledClass = disabled || loading ? "bm-btn--disabled" : "";
 
+  const handleClick = (e) => {
+    if (disabled || loading) {
+      e.preventDefault();
+      return;
+    }
+    if (onClick) {
+      console.log('🔘 Button onClick triggered');
+      onClick(e);
+    }
+  };
+
   return (
     <button
       className={`${baseClass} ${variantClass} ${loadingClass} ${disabledClass} ${className}`}
       disabled={disabled || loading}
+      onClick={handleClick}
       {...props}
     >
       {loading && <span className="bm-btn__spinner"></span>}

@@ -12,8 +12,18 @@ const { cleanupExpiredTokens } = require("./utils/tokenCleanup");
 
 const app = express();
 
-app.use(helmet());
-app.use(cors());
+// CORS must be before helmet
+app.use(cors({
+  origin: ["http://localhost:3000", "http://localhost:3001"], // Frontend origins
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+app.use(helmet({
+  crossOriginResourcePolicy: false
+}));
+
 app.use(express.json());
 app.use(morgan("dev"));
 

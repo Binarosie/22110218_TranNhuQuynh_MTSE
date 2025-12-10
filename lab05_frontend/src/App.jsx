@@ -26,7 +26,9 @@ import ApartmentDetail from './pages/apartments/ApartmentDetail';
 import MyApartments from './pages/apartments/MyApartments';
 import ApartmentManagement from './pages/apartments/ApartmentManagement';
 import CreateApartment from './pages/apartments/CreateApartment';
-import Cart from './pages/apartments/Cart';
+
+// Cart page
+import Cart from './pages/cart/Cart';
 
 // Booking pages
 import MyBookings from './pages/bookings/MyBookings';
@@ -150,6 +152,16 @@ function App() {
                         />
 
                         {/* ---------- USER ROUTES ---------- */}
+                        <Route
+                            path="/cart"
+                            element={
+                                <ProtectedRoute>
+                                    <RoleBasedRoute allowedRoles="User">
+                                        <Cart />
+                                    </RoleBasedRoute>
+                                </ProtectedRoute>
+                            }
+                        />
                         <Route
                             path="/my-apartments"
                             element={

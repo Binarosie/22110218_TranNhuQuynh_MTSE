@@ -1,10 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { Menu, LogOut, User, Users, UserPlus, Home, Bell } from 'lucide-react';
+import { useCart } from '@yourname/lab07-cart';
+import { Menu, LogOut, User, Users, UserPlus, Home, Bell, ShoppingCart } from 'lucide-react';
 
 const Navbar = () => {
     const { user, logout } = useAuth();
+    const { items } = useCart();
 
     const handleLogout = () => {
         logout();
@@ -80,6 +82,18 @@ const Navbar = () => {
                                     >
                                         <Home className="h-4 w-4 mr-2" />
                                         Browse
+                                    </Link>
+                                    <Link
+                                        to="/cart"
+                                        className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors relative"
+                                    >
+                                        <ShoppingCart className="h-4 w-4 mr-2" />
+                                        Cart
+                                        {items.length > 0 && (
+                                            <span className="ml-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                                {items.length}
+                                            </span>
+                                        )}
                                     </Link>
                                     <Link
                                         to="/my-apartments"

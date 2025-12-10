@@ -22,9 +22,21 @@ const BuildingManagement = () => {
   const [expandedBlocks, setExpandedBlocks] = useState(new Set());
 
   useEffect(() => {
-    fetchOverview();
-    fetchBuildings();
-  }, []);
+    let mounted = true;
+
+    const fetchData = async () => {
+      if (!mounted) return;
+      
+      await fetchOverview();
+      await fetchBuildings();
+    };
+
+    fetchData();
+
+    return () => {
+      mounted = false;
+    };
+  }, []); // Only run once on mount
 
   const fetchOverview = async () => {
     try {
